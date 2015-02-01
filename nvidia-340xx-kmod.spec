@@ -3,13 +3,13 @@
 # "buildforkernels newest" macro for just that build; immediately after
 # queuing that build enable the macro again for subsequent builds; that way
 # a new akmod package will only get build when a new one is actually needed
-%global buildforkernels newest
+%global buildforkernels akmod
 
 Name:          nvidia-340xx-kmod
 Epoch:         1
-Version:       340.65
+Version:       340.76
 # Taken over by kmodtool
-Release:       2%{?dist}.2
+Release:       1%{?dist}
 Summary:       NVIDIA display driver kernel module
 Group:         System Environment/Kernel
 License:       Redistributable, no modification permitted
@@ -17,8 +17,6 @@ URL:           http://www.nvidia.com/
 
 Source11:      nvidia-kmodtool-excludekernel-filterfile
 Patch0:        nv-linux-arm.patch
-Patch1:        3.18_kernel.patch
-Patch2:        3.19_kernel.patch
 
 BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -46,8 +44,6 @@ kmodtool  --target %{_target_cpu}  --repo rpmfusion --kmodname %{name} --filterf
 tar --use-compress-program xz -xf %{_datadir}/%{name}-%{version}/%{name}-%{version}-%{_target_cpu}.tar.xz
 # patch loop
 %patch0 -p1
-%patch1 -p1
-%patch2 -p1
 
 for kernel_version  in %{?kernel_versions} ; do
     cp -a kernel _kmod_build_${kernel_version%%___*}
@@ -64,12 +60,14 @@ for kernel_version in %{?kernel_versions}; do
         module
   popd
 %{!?_nv_build_module_instances:
+%ifarch x86_64
   pushd _kmod_build_${kernel_version%%___*}/uvm
     make %{?_smp_mflags} \
         KERNEL_UNAME="${kernel_version%%___*}" SYSSRC="${kernel_version##*___}" \
         IGNORE_CC_MISMATCH=1 IGNORE_XEN_PRESENCE=1 IGNORE_PREEMPT_RT_PRESENCE=1 \
         module
   popd
+%endif
 }
 done
 
@@ -78,7 +76,11 @@ done
 rm -rf $RPM_BUILD_ROOT
 for kernel_version in %{?kernel_versions}; do
     mkdir -p  $RPM_BUILD_ROOT/%{kmodinstdir_prefix}/${kernel_version%%___*}/%{kmodinstdir_postfix}/
+%ifarch x86_64
     install -D -m 0755 _kmod_build_${kernel_version%%___*}/{,uvm}/nvidia*.ko \
+%else
+    install -D -m 0755 _kmod_build_${kernel_version%%___*}/nvidia.ko \
+%endif
          $RPM_BUILD_ROOT/%{kmodinstdir_prefix}/${kernel_version%%___*}/%{kmodinstdir_postfix}/
 done
 %{?akmod_install}
@@ -89,6 +91,12 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Jan 28 2015 Przemysław Palacz <pprzemal@gmail.com> - 1:340.76-1
+- Update to 340.76
+- Drop kernel 3.18 patch
+- Drop kernel 3.19 patch
+- Do not build uvm driver on architectures other than x86_64 (follow main)
+
 * Wed Jan 21 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:340.65-2.2
 - Rebuilt for kernel
 
