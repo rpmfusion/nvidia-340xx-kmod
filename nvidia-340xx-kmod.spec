@@ -9,7 +9,7 @@ Name:          nvidia-340xx-kmod
 Epoch:         1
 Version:       340.76
 # Taken over by kmodtool
-Release:       1%{?dist}.11
+Release:       1%{?dist}.12
 Summary:       NVIDIA display driver kernel module
 Group:         System Environment/Kernel
 License:       Redistributable, no modification permitted
@@ -91,6 +91,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Sat May 09 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:340.76-1.12
+- Rebuilt for kernel
+
 * Sat May 02 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:340.76-1.11
 - Rebuilt for kernel
 
