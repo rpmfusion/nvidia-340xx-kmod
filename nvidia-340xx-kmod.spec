@@ -3,13 +3,13 @@
 # "buildforkernels newest" macro for just that build; immediately after
 # queuing that build enable the macro again for subsequent builds; that way
 # a new akmod package will only get build when a new one is actually needed
-%global buildforkernels newest
+%global buildforkernels current
 
 Name:          nvidia-340xx-kmod
 Epoch:         1
-Version:       340.76
+Version:       340.93
 # Taken over by kmodtool
-Release:       3%{?dist}.3
+Release:       1%{?dist}
 Summary:       NVIDIA display driver kernel module
 Group:         System Environment/Kernel
 License:       Redistributable, no modification permitted
@@ -17,7 +17,6 @@ URL:           http://www.nvidia.com/
 
 Source11:      nvidia-kmodtool-excludekernel-filterfile
 Patch0:        nv-linux-arm.patch
-Patch1:        4.0.0_kernel.patch
 
 BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -45,7 +44,6 @@ kmodtool  --target %{_target_cpu}  --repo rpmfusion --kmodname %{name} --filterf
 tar --use-compress-program xz -xf %{_datadir}/%{name}-%{version}/%{name}-%{version}-%{_target_cpu}.tar.xz
 # patch loop
 %patch0 -p1
-%patch1 -p1
 
 for kernel_version  in %{?kernel_versions} ; do
     cp -a kernel _kmod_build_${kernel_version%%___*}
@@ -93,6 +91,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Sep 03 2015 Leigh Scott <leigh123linux@googlemail.com> - 1:340.93-1
+- Update to 340.93
+
 * Fri Aug 21 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:340.76-3.3
 - Rebuilt for kernel
 
