@@ -9,7 +9,7 @@ Name:          nvidia-340xx-kmod
 Epoch:         1
 Version:       340.96
 # Taken over by kmodtool
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       NVIDIA display driver kernel module
 Group:         System Environment/Kernel
 License:       Redistributable, no modification permitted
@@ -21,7 +21,8 @@ Patch0:        nv-linux-arm.patch
 BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 # needed for plague to make sure it builds for i586 and i686
-ExclusiveArch:  i686 x86_64 armv7hl
+#ExclusiveArch:  i686 x86_64 armv7hl
+ExclusiveArch:  i686 x86_64
 
 # get the needed BuildRequires (in parts depending on what we build for)
 %global AkmodsBuildRequires %{_bindir}/kmodtool, xorg-x11-drv-nvidia-340xx-kmodsrc >= %{epoch}:%{version}
@@ -91,6 +92,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Jun 30 2016 Nicolas Chauvet <kwizart@gmail.com> - 1:340.96-2
+- Avoid armhfp for now
+
 * Tue Nov 17 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:340.96-1
 - Update to 340.96
 
