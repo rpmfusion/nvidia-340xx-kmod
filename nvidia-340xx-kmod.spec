@@ -8,9 +8,9 @@
 
 Name:          nvidia-340xx-kmod
 Epoch:         1
-Version:       340.101
+Version:       340.102
 # Taken over by kmodtool
-Release:       2%{?dist}
+Release:       1%{?dist}
 Summary:       NVIDIA display driver kernel module
 Group:         System Environment/Kernel
 License:       Redistributable, no modification permitted
@@ -95,6 +95,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Feb 15 2017 Leigh Scott <leigh123linux@googlemail.com> - 1:340.102-1
+- Update to 340.102
+
 * Sat Dec 17 2016 leigh scott <leigh123linux@googlemail.com> - 1:340.101-2
 - patch to fix loading module on 4.9 kernel
 
