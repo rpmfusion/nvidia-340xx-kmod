@@ -1,12 +1,12 @@
-From 983a2ca221a371e08bb5ad11758a729cfa5aa88c Mon Sep 17 00:00:00 2001
-From: Alberto Milone <alberto.milone@canonical.com>
-Date: Wed, 15 Feb 2017 17:05:55 +0100
-Subject: [PATCH 1/1] Add support for Linux 4.10
+From 9480eefced90ecd4aa0e9c8953eb073eb57ab681 Mon Sep 17 00:00:00 2001
+From: leigh123linux <leigh123linux@googlemail.com>
+Date: Sun, 30 Jul 2017 12:17:01 +0100
+Subject: [PATCH 2/4] 4.10.0_kernel
 
 ---
- nv-linux.h            |  7 +++++++
- nv-pat.c              | 40 ++++++++++++++++++++++++++++++++++++++++
- uvm/nvidia_uvm_lite.c |  4 ++++
+ kernel/nv-linux.h            |  7 +++++++
+ kernel/nv-pat.c              | 40 ++++++++++++++++++++++++++++++++++++++++
+ kernel/uvm/nvidia_uvm_lite.c |  4 ++++
  3 files changed, 51 insertions(+)
 
 diff --git a/kernel/nv-linux.h b/kernel/nv-linux.h
@@ -127,5 +127,5 @@ index 9627f60..2158b45 100644
      int retval;
  
 -- 
-2.7.4
+2.13.3
 

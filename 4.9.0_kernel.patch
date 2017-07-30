@@ -1,6 +1,17 @@
---- a/kernel/nv-drm.c	2016-12-15 12:41:26.000000000 +0100
-+++ b/kernel/nv-drm.c	2016-12-15 12:58:48.000000000 +0100
-@@ -115,7 +115,11 @@
+From 19996a25efb250a1b8c7d06fdb85b5462e2a7797 Mon Sep 17 00:00:00 2001
+From: leigh123linux <leigh123linux@googlemail.com>
+Date: Sun, 30 Jul 2017 12:16:14 +0100
+Subject: [PATCH 1/4] 4.9.0_kernel
+
+---
+ kernel/nv-drm.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/kernel/nv-drm.c b/kernel/nv-drm.c
+index 4c1a3ae..ea9f17e 100644
+--- a/kernel/nv-drm.c
++++ b/kernel/nv-drm.c
+@@ -115,7 +115,11 @@ static const struct file_operations nv_drm_fops = {
  };
  
  static struct drm_driver nv_drm_driver = {
@@ -12,3 +23,6 @@
      .load = nv_drm_load,
      .unload = nv_drm_unload,
      .fops = &nv_drm_fops,
+-- 
+2.13.3
+
