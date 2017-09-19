@@ -1,94 +1,6 @@
-From 457a5db504405f2ce2afad82bdcc59a9349b5d77 Mon Sep 17 00:00:00 2001
-From: leigh123linux <leigh123linux@googlemail.com>
-Date: Sun, 30 Jul 2017 12:17:39 +0100
-Subject: [PATCH 3/4] 4.11_kernel
-
----
- kernel/nv-drm.c               | 14 ++++++++++++++
- kernel/uvm/nvidia_uvm_linux.h |  5 +++++
- kernel/uvm/nvidia_uvm_lite.c  | 12 ++++++++++++
- 3 files changed, 31 insertions(+)
-
-diff --git a/kernel/nv-drm.c b/kernel/nv-drm.c
-index ea9f17e..bcb7cfe 100644
---- a/kernel/nv-drm.c
-+++ b/kernel/nv-drm.c
-@@ -22,6 +22,8 @@
- #include <drm/drm_gem.h>
- #endif
- 
-+#include <linux/version.h>
-+
- extern nv_linux_state_t *nv_linux_devices;
- 
- struct nv_gem_object {
-@@ -48,7 +50,11 @@ static int nv_drm_load(
-     return -ENODEV;
- }
- 
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 11, 0)
- static int nv_drm_unload(
-+#else
-+static void nv_drm_unload(
-+#endif
-     struct drm_device *dev
- )
- {
-@@ -60,11 +66,19 @@ static int nv_drm_unload(
-         {
-             BUG_ON(nvl->drm != dev);
-             nvl->drm = NULL;
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 11, 0)
-             return 0;
-+#else
-+            return;
-+#endif
-         }
-     }
- 
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 11, 0)
-     return -ENODEV;
-+#else
-+    return;
-+#endif
- }
- 
- static void nv_gem_free(
-diff --git a/kernel/uvm/nvidia_uvm_linux.h b/kernel/uvm/nvidia_uvm_linux.h
-index f69c107..0fb3b3b 100644
---- a/kernel/uvm/nvidia_uvm_linux.h
-+++ b/kernel/uvm/nvidia_uvm_linux.h
-@@ -124,6 +124,9 @@
- #include <linux/delay.h>            /* mdelay, udelay                   */
- 
- #include <linux/sched.h>            /* suser(), capable() replacement   */
-+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
-+#include <linux/sched/signal.h>
-+#endif
- #include <linux/moduleparam.h>      /* module_param()                   */
- #if !defined(NV_VMWARE)
- #include <asm/tlbflush.h>           /* flush_tlb(), flush_tlb_all()     */
-@@ -362,6 +365,7 @@ typedef void irqreturn_t;
-     void address_space_init_once(struct address_space *mapping);
- #endif
- 
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 11, 0)
- #if !defined(NV_FATAL_SIGNAL_PENDING_PRESENT)
-     static inline int __fatal_signal_pending(struct task_struct *p)
-     {
-@@ -373,6 +377,7 @@ typedef void irqreturn_t;
-         return signal_pending(p) && __fatal_signal_pending(p);
-     }
- #endif
-+#endif
- 
- //
- // Before the current->cred structure was introduced, current->euid,
-diff --git a/kernel/uvm/nvidia_uvm_lite.c b/kernel/uvm/nvidia_uvm_lite.c
-index 2158b45..5150f3d 100644
 --- a/kernel/uvm/nvidia_uvm_lite.c
 +++ b/kernel/uvm/nvidia_uvm_lite.c
-@@ -818,7 +818,11 @@ done:
+@@ -818,7 +818,11 @@
  }
  
  #if defined(NV_VM_OPERATIONS_STRUCT_HAS_FAULT)
@@ -98,9 +10,9 @@ index 2158b45..5150f3d 100644
  int _fault(struct vm_area_struct *vma, struct vm_fault *vmf)
 +#endif
  {
- #if LINUX_VERSION_CODE < KERNEL_VERSION(4, 10, 0)
-     unsigned long vaddr = (unsigned long)vmf->virtual_address;
-@@ -828,7 +832,11 @@ int _fault(struct vm_area_struct *vma, struct vm_fault *vmf)
+ #if defined(NV_VM_FAULT_HAS_ADDRESS)
+     unsigned long vaddr = vmf->address;
+@@ -828,7 +832,11 @@
      struct page *page = NULL;
      int retval;
  
@@ -112,7 +24,7 @@ index 2158b45..5150f3d 100644
  
      vmf->page = page;
  
-@@ -866,7 +874,11 @@ static struct vm_operations_struct uvmlite_vma_ops =
+@@ -866,7 +874,11 @@
  // it's dealing with anonymous mapping (see handle_pte_fault).
  //
  #if defined(NV_VM_OPERATIONS_STRUCT_HAS_FAULT)
@@ -124,6 +36,4 @@ index 2158b45..5150f3d 100644
  {
      vmf->page = NULL;
      return VM_FAULT_SIGBUS;
--- 
-2.13.3
 

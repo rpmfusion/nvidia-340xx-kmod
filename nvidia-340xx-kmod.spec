@@ -8,9 +8,9 @@
 
 Name:          nvidia-340xx-kmod
 Epoch:         1
-Version:       340.102
+Version:       340.104
 # Taken over by kmodtool
-Release:       5%{?dist}
+Release:       1%{?dist}
 Summary:       NVIDIA display driver kernel module
 Group:         System Environment/Kernel
 License:       Redistributable, no modification permitted
@@ -18,10 +18,7 @@ URL:           http://www.nvidia.com/
 
 Source11:      nvidia-kmodtool-excludekernel-filterfile
 Patch0:        nv-linux-arm.patch
-Patch1:        4.9.0_kernel.patch
-Patch2:        4.10.0_kernel.patch
-Patch3:        4.11_kernel.patch
-Patch4:        4.12_kernel.patch
+Patch1:        4.11_kernel.patch
 
 BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -51,9 +48,6 @@ tar --use-compress-program xz -xf %{_datadir}/%{name}-%{version}/%{name}-%{versi
 # patch loop
 %patch0 -p1
 %patch1 -p1
-%patch2 -p1
-%patch3 -p1
-%patch4 -p1
 
 for kernel_version  in %{?kernel_versions} ; do
     cp -a kernel _kmod_build_${kernel_version%%___*}
@@ -101,6 +95,11 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Sep 19 2017 Leigh Scott <leigh123linux@googlemail.com> - 1:340.104-1
+- Update to 340.104
+- Drop obsolete kernel patches
+- Rebase 4.11_kernel patch to fix compile
+
 * Thu Aug 31 2017 RPM Fusion Release Engineering <kwizart@rpmfusion.org> - 1:340.102-5
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Mass_Rebuild
 
