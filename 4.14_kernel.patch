@@ -1,0 +1,27 @@
+--- a/kernel/nv-drm.c
++++ b/kernel/nv-drm.c
+@@ -173,7 +173,11 @@
+ {
+     int ret = 0;
+ #if defined(NV_DRM_AVAILABLE)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0)
++    ret = drm_legacy_pci_init(&nv_drm_driver, pci_driver);
++#else
+     ret = drm_pci_init(&nv_drm_driver, pci_driver);
++#endif
+ #endif
+     return ret;
+ }
+@@ -183,7 +187,11 @@
+ )
+ {
+ #if defined(NV_DRM_AVAILABLE)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0)
++    drm_legacy_pci_exit(&nv_drm_driver, pci_driver);
++#else
+     drm_pci_exit(&nv_drm_driver, pci_driver);
++#endif
+ #endif
+ }
+ 
+
