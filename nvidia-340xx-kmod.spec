@@ -8,9 +8,9 @@
 
 Name:          nvidia-340xx-kmod
 Epoch:         1
-Version:       340.104
+Version:       340.106
 # Taken over by kmodtool
-Release:       2%{?dist}
+Release:       1%{?dist}
 Summary:       NVIDIA display driver kernel module
 Group:         System Environment/Kernel
 License:       Redistributable, no modification permitted
@@ -19,7 +19,7 @@ URL:           http://www.nvidia.com/
 Source11:      nvidia-kmodtool-excludekernel-filterfile
 Patch0:        nv-linux-arm.patch
 Patch1:        4.11_kernel.patch
-Patch2:        4.14_kernel.patch
+Patch2:        4.14_kernel-106.patch
 
 BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -97,6 +97,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Jan 17 2018 Wolfgang Ulbrich <chat-to-me@raveit.de> - 1:340.106-1
+- Update to 340.106
+
 * Thu Dec 07 2017 Leigh Scott <leigh123linux@googlemail.com> - 1:340.104-2
 - patch for kernel-4.14
 

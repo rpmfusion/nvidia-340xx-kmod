@@ -1,0 +1,29 @@
+diff -uprN nvidia-340xx-kmod-340.106-orig/kernel/nv-drm.c nvidia-340xx-kmod-340.106/kernel/nv-drm.c
+--- nvidia-340xx-kmod-340.106-orig/kernel/nv-drm.c	2018-01-17 16:49:22.366243000 +0100
++++ nvidia-340xx-kmod-340.106/kernel/nv-drm.c	2018-01-17 16:50:03.685166103 +0100
+@@ -181,8 +181,12 @@ int __init nv_drm_init(
+ {
+     int ret = 0;
+ #if defined(NV_DRM_AVAILABLE)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0)
++    ret = drm_legacy_pci_init(&nv_drm_driver, pci_driver);
++#else
+     ret = nv_drm_pci_init(&nv_drm_driver, pci_driver);
+ #endif
++#endif
+     return ret;
+ }
+ 
+@@ -191,8 +195,12 @@ void nv_drm_exit(
+ )
+ {
+ #if defined(NV_DRM_AVAILABLE)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0)
++    drm_legacy_pci_exit(&nv_drm_driver, pci_driver);
++#else
+     nv_drm_pci_exit(&nv_drm_driver, pci_driver);
+ #endif
++#endif
+ }
+ 
+ RM_STATUS NV_API_CALL nv_alloc_os_descriptor_handle(
