@@ -10,7 +10,7 @@ Name:          nvidia-340xx-kmod
 Epoch:         1
 Version:       340.107
 # Taken over by kmodtool
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       NVIDIA display driver kernel module
 Group:         System Environment/Kernel
 License:       Redistributable, no modification permitted
@@ -18,9 +18,6 @@ URL:           http://www.nvidia.com/
 
 Source11:      nvidia-kmodtool-excludekernel-filterfile
 Patch0:        nv-linux-arm.patch
-Patch1:        4.11_kernel.patch
-
-BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 # needed for plague to make sure it builds for i586 and i686
 #ExclusiveArch:  i686 x86_64 armv7hl
@@ -47,7 +44,6 @@ kmodtool  --target %{_target_cpu}  --repo rpmfusion --kmodname %{name} --filterf
 tar --use-compress-program xz -xf %{_datadir}/%{name}-%{version}/%{name}-%{version}-%{_target_cpu}.tar.xz
 # patch loop
 %patch0 -p1
-%patch1 -p1
 
 for kernel_version  in %{?kernel_versions} ; do
     cp -a kernel _kmod_build_${kernel_version%%___*}
@@ -64,37 +60,22 @@ for kernel_version in %{?kernel_versions}; do
         module
   popd
 %{!?_nv_build_module_instances:
-%ifarch x86_64
-  pushd _kmod_build_${kernel_version%%___*}/uvm
-    make %{?_smp_mflags} \
-        KERNEL_UNAME="${kernel_version%%___*}" SYSSRC="${kernel_version##*___}" \
-        IGNORE_CC_MISMATCH=1 IGNORE_XEN_PRESENCE=1 IGNORE_PREEMPT_RT_PRESENCE=1 \
-        module
-  popd
-%endif
 }
 done
 
 
 %install
-rm -rf $RPM_BUILD_ROOT
 for kernel_version in %{?kernel_versions}; do
     mkdir -p  $RPM_BUILD_ROOT/%{kmodinstdir_prefix}/${kernel_version%%___*}/%{kmodinstdir_postfix}/
-%ifarch x86_64
-    install -D -m 0755 _kmod_build_${kernel_version%%___*}/{,uvm}/nvidia*.ko \
-%else
     install -D -m 0755 _kmod_build_${kernel_version%%___*}/nvidia.ko \
-%endif
          $RPM_BUILD_ROOT/%{kmodinstdir_prefix}/${kernel_version%%___*}/%{kmodinstdir_postfix}/
 done
 %{?akmod_install}
 
-
-%clean
-rm -rf $RPM_BUILD_ROOT
-
-
 %changelog
+* Sun Jun 10 2018 Leigh Scott <leigh123linux@googlemail.com> - 1:340.107-2
+- Remove UVM module as legacy GPU don't support Unified Memory. 
+
 * Fri Jun 08 2018 Leigh Scott <leigh123linux@googlemail.com> - 1:340.107-1
 - Update to 340.107
 
