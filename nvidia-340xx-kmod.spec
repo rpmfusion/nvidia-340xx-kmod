@@ -10,7 +10,7 @@ Name:          nvidia-340xx-kmod
 Epoch:         1
 Version:       340.107
 # Taken over by kmodtool
-Release:       3%{?dist}
+Release:       4%{?dist}
 Summary:       NVIDIA display driver kernel module
 Group:         System Environment/Kernel
 License:       Redistributable, no modification permitted
@@ -73,6 +73,9 @@ done
 %{?akmod_install}
 
 %changelog
+* Fri Jul 27 2018 RPM Fusion Release Engineering <sergio@serjux.com> - 1:340.107-4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
+
 * Fri Jul 27 2018 RPM Fusion Release Engineering <sergio@serjux.com> - 1:340.107-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
 
