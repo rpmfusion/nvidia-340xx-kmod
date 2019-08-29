@@ -10,7 +10,7 @@ Name:          nvidia-340xx-kmod
 Epoch:         1
 Version:       340.107
 # Taken over by kmodtool
-Release:       9%{?dist}
+Release:       10%{?dist}
 Summary:       NVIDIA display driver kernel module
 Group:         System Environment/Kernel
 License:       Redistributable, no modification permitted
@@ -21,9 +21,11 @@ Patch0:        nv-linux-arm.patch
 Patch1:        buildfix_kernel_5.0.patch
 Patch2:        xf86-video-nvidia-legacy-02-fix-linux-5.1.patch
 
-# needed for plague to make sure it builds for i586 and i686
-#ExclusiveArch:  i686 x86_64 armv7hl
+%if 0%{?fedora} > 30
+ExclusiveArch:  x86_64
+%else
 ExclusiveArch:  i686 x86_64
+%endif
 
 # get the needed BuildRequires (in parts depending on what we build for)
 %global AkmodsBuildRequires %{_bindir}/kmodtool, xorg-x11-drv-nvidia-340xx-kmodsrc >= %{epoch}:%{version}
@@ -77,6 +79,9 @@ done
 %{?akmod_install}
 
 %changelog
+* Thu Aug 29 2019 Leigh Scott <leigh123linux@googlemail.com> - 1:340.107-10
+- Exclude i686 for F31+
+
 * Sat Aug 10 2019 RPM Fusion Release Engineering <leigh123linux@gmail.com> - 1:340.107-9
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_31_Mass_Rebuild
 
