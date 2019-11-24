@@ -10,7 +10,7 @@ Name:          nvidia-340xx-kmod
 Epoch:         1
 Version:       340.107
 # Taken over by kmodtool
-Release:       8%{?dist}
+Release:       9%{?dist}
 Summary:       NVIDIA display driver kernel module
 Group:         System Environment/Kernel
 License:       Redistributable, no modification permitted
@@ -20,6 +20,7 @@ Source11:      nvidia-kmodtool-excludekernel-filterfile
 Patch0:        nv-linux-arm.patch
 Patch1:        buildfix_kernel_5.0.patch
 Patch2:        xf86-video-nvidia-legacy-02-fix-linux-5.1.patch
+Patch3:        buildfix_kernel_5.3.patch
 
 # needed for plague to make sure it builds for i586 and i686
 #ExclusiveArch:  i686 x86_64 armv7hl
@@ -48,6 +49,7 @@ tar --use-compress-program xz -xf %{_datadir}/%{name}-%{version}/%{name}-%{versi
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
 
 for kernel_version  in %{?kernel_versions} ; do
     cp -a kernel _kmod_build_${kernel_version%%___*}
@@ -77,6 +79,9 @@ done
 %{?akmod_install}
 
 %changelog
+* Sun Nov 24 2019 João Carlos Mendes Luís <redhat@jonny.eng.br> - 1:340.107-9
+- patch for kernel-5.3.0
+
 * Mon Jun 03 2019 Leigh Scott <leigh123linux@googlemail.com> - 1:340.107-8
 - patch for kernel-5.1.0
 
