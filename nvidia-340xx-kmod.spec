@@ -10,7 +10,7 @@ Name:          nvidia-340xx-kmod
 Epoch:         1
 Version:       340.107
 # Taken over by kmodtool
-Release:       11%{?dist}
+Release:       12%{?dist}
 Summary:       NVIDIA display driver kernel module
 Group:         System Environment/Kernel
 License:       Redistributable, no modification permitted
@@ -19,8 +19,8 @@ URL:           http://www.nvidia.com/
 Source11:      nvidia-kmodtool-excludekernel-filterfile
 Patch0:        nv-linux-arm.patch
 Patch1:        buildfix_kernel_5.0.patch
-Patch2:        xf86-video-nvidia-legacy-02-fix-linux-5.1.patch
-Patch3:        buildfix_kernel_5.3.patch
+Patch2:        buildfix_kernel_5.3.patch
+Patch3:        buildfix_kernel_5.4.patch
 
 %if 0%{?fedora} > 30
 ExclusiveArch:  x86_64
@@ -81,6 +81,9 @@ done
 %{?akmod_install}
 
 %changelog
+* Fri Dec 20 2019 Leigh Scott <leigh123linux@gmail.com> - 1:340.107-12
+- patch for kernel-5.4.0
+
 * Sun Nov 24 2019 João Carlos Mendes Luís <redhat@jonny.eng.br> - 1:340.107-11
 - patch for kernel-5.3.0
 
