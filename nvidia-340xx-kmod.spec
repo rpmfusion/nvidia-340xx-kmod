@@ -8,9 +8,9 @@
 
 Name:          nvidia-340xx-kmod
 Epoch:         1
-Version:       340.107
+Version:       340.108
 # Taken over by kmodtool
-Release:       12%{?dist}
+Release:       1%{?dist}
 Summary:       NVIDIA display driver kernel module
 Group:         System Environment/Kernel
 License:       Redistributable, no modification permitted
@@ -18,15 +18,8 @@ URL:           http://www.nvidia.com/
 
 Source11:      nvidia-kmodtool-excludekernel-filterfile
 Patch0:        nv-linux-arm.patch
-Patch1:        buildfix_kernel_5.0.patch
-Patch2:        buildfix_kernel_5.3.patch
-Patch3:        buildfix_kernel_5.4.patch
 
-%if 0%{?fedora} > 30
-ExclusiveArch:  x86_64
-%else
 ExclusiveArch:  i686 x86_64
-%endif
 
 # get the needed BuildRequires (in parts depending on what we build for)
 %global AkmodsBuildRequires %{_bindir}/kmodtool, xorg-x11-drv-nvidia-340xx-kmodsrc >= %{epoch}:%{version}
@@ -49,9 +42,6 @@ kmodtool  --target %{_target_cpu}  --repo rpmfusion --kmodname %{name} --filterf
 tar --use-compress-program xz -xf %{_datadir}/%{name}-%{version}/%{name}-%{version}-%{_target_cpu}.tar.xz
 # patch loop
 %patch0 -p1
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
 
 for kernel_version  in %{?kernel_versions} ; do
     cp -a kernel _kmod_build_${kernel_version%%___*}
@@ -81,6 +71,9 @@ done
 %{?akmod_install}
 
 %changelog
+* Mon Dec 23 2019 Leigh Scott <leigh123linux@gmail.com> - 1:340.108-1
+- Update to 340.108
+
 * Fri Dec 20 2019 Leigh Scott <leigh123linux@gmail.com> - 1:340.107-12
 - patch for kernel-5.4.0
 
