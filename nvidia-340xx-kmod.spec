@@ -8,9 +8,9 @@
 
 Name:          nvidia-340xx-kmod
 Epoch:         1
-Version:       340.107
+Version:       340.108
 # Taken over by kmodtool
-Release:       9%{?dist}
+Release:       1%{?dist}
 Summary:       NVIDIA display driver kernel module
 Group:         System Environment/Kernel
 License:       Redistributable, no modification permitted
@@ -18,12 +18,7 @@ URL:           http://www.nvidia.com/
 
 Source11:      nvidia-kmodtool-excludekernel-filterfile
 Patch0:        nv-linux-arm.patch
-Patch1:        buildfix_kernel_5.0.patch
-Patch2:        xf86-video-nvidia-legacy-02-fix-linux-5.1.patch
-Patch3:        buildfix_kernel_5.3.patch
 
-# needed for plague to make sure it builds for i586 and i686
-#ExclusiveArch:  i686 x86_64 armv7hl
 ExclusiveArch:  i686 x86_64
 
 # get the needed BuildRequires (in parts depending on what we build for)
@@ -47,9 +42,6 @@ kmodtool  --target %{_target_cpu}  --repo rpmfusion --kmodname %{name} --filterf
 tar --use-compress-program xz -xf %{_datadir}/%{name}-%{version}/%{name}-%{version}-%{_target_cpu}.tar.xz
 # patch loop
 %patch0 -p1
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
 
 for kernel_version  in %{?kernel_versions} ; do
     cp -a kernel _kmod_build_${kernel_version%%___*}
@@ -79,8 +71,20 @@ done
 %{?akmod_install}
 
 %changelog
-* Sun Nov 24 2019 João Carlos Mendes Luís <redhat@jonny.eng.br> - 1:340.107-9
+* Mon Dec 23 2019 Leigh Scott <leigh123linux@gmail.com> - 1:340.108-1
+- Update to 340.108
+
+* Fri Dec 20 2019 Leigh Scott <leigh123linux@gmail.com> - 1:340.107-12
+- patch for kernel-5.4.0
+
+* Sun Nov 24 2019 João Carlos Mendes Luís <redhat@jonny.eng.br> - 1:340.107-11
 - patch for kernel-5.3.0
+
+* Thu Aug 29 2019 Leigh Scott <leigh123linux@googlemail.com> - 1:340.107-10
+- Exclude i686 for F31+
+
+* Sat Aug 10 2019 RPM Fusion Release Engineering <leigh123linux@gmail.com> - 1:340.107-9
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_31_Mass_Rebuild
 
 * Mon Jun 03 2019 Leigh Scott <leigh123linux@googlemail.com> - 1:340.107-8
 - patch for kernel-5.1.0
