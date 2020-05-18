@@ -3,14 +3,16 @@
 # "buildforkernels newest" macro for just that build; immediately after
 # queuing that build enable the macro again for subsequent builds; that way
 # a new akmod package will only get build when a new one is actually needed
+%if 0%{?fedora}
 %global buildforkernels akmod
 %global debug_package %{nil}
+%endif
 
 Name:          nvidia-340xx-kmod
 Epoch:         1
 Version:       340.108
 # Taken over by kmodtool
-Release:       3%{?dist}
+Release:       4%{?dist}
 Summary:       NVIDIA display driver kernel module
 Group:         System Environment/Kernel
 License:       Redistributable, no modification permitted
@@ -73,6 +75,9 @@ done
 %{?akmod_install}
 
 %changelog
+* Mon May 18 2020 Nicolas Chauvet <kwizart@gmail.com> - 1:340.108-4
+- Bump for current
+
 * Wed Apr 29 2020 Leigh Scott <leigh123linux@gmail.com> - 1:340.108-3
 - patch for kernel-5.6.0
 
