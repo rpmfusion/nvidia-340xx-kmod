@@ -3,13 +3,14 @@
 # "buildforkernels newest" macro for just that build; immediately after
 # queuing that build enable the macro again for subsequent builds; that way
 # a new akmod package will only get build when a new one is actually needed
-%global buildforkernels newest
+%global buildforkernels akmod
+%global debug_package %{nil}
 
 Name:          nvidia-340xx-kmod
 Epoch:         1
-Version:       340.76
+Version:       340.108
 # Taken over by kmodtool
-Release:       2%{?dist}.2
+Release:       3%{?dist}
 Summary:       NVIDIA display driver kernel module
 Group:         System Environment/Kernel
 License:       Redistributable, no modification permitted
@@ -17,12 +18,9 @@ URL:           http://www.nvidia.com/
 
 Source11:      nvidia-kmodtool-excludekernel-filterfile
 Patch0:        nv-linux-arm.patch
-Patch1:        4.0.0_kernel.patch
+Patch1:        kernel-5.6.patch
 
-BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-
-# needed for plague to make sure it builds for i586 and i686
-ExclusiveArch:  i686 x86_64 armv7hl
+ExclusiveArch:  i686 x86_64
 
 # get the needed BuildRequires (in parts depending on what we build for)
 %global AkmodsBuildRequires %{_bindir}/kmodtool, xorg-x11-drv-nvidia-340xx-kmodsrc >= %{epoch}:%{version}
@@ -30,7 +28,7 @@ BuildRequires:  %{AkmodsBuildRequires}
 
 %{!?kernels:BuildRequires: buildsys-build-rpmfusion-kerneldevpkgs-%{?buildforkernels:%{buildforkernels}}%{!?buildforkernels:current}-%{_target_cpu} }
 # kmodtool does its magic here
-%{expand:%(kmodtool --target %{_target_cpu} --repo rpmfusion --kmodname %{name} --filterfile %{SOURCE11} %{?buildforkernels:--%{buildforkernels}} %{?kernels:--for-kernels "%{?kernels}"} 2>/dev/null) }
+%{expand:%(kmodtool --target %{_target_cpu} --repo rpmfusion --kmodname %{name} --filterfile %{SOURCE11} --obsolete-name nvidia --obsolete-version "1:340.1000" %{?buildforkernels:--%{buildforkernels}} %{?kernels:--for-kernels "%{?kernels}"} 2>/dev/null) }
 
 %description
 The nvidia %{version} display driver kernel module for kernel %{kversion}.
@@ -40,7 +38,7 @@ The nvidia %{version} display driver kernel module for kernel %{kversion}.
 # error out if there was something wrong with kmodtool
 %{?kmodtool_check}
 # print kmodtool output for debugging purposes:
-kmodtool  --target %{_target_cpu}  --repo rpmfusion --kmodname %{name} --filterfile %{SOURCE11} %{?buildforkernels:--%{buildforkernels}} %{?kernels:--for-kernels "%{?kernels}"} 2>/dev/null
+kmodtool  --target %{_target_cpu}  --repo rpmfusion --kmodname %{name} --filterfile %{SOURCE11} --obsolete-name nvidia --obsolete-version "1:340.1000" %{?buildforkernels:--%{buildforkernels}} %{?kernels:--for-kernels "%{?kernels}"} 2>/dev/null
 %setup -T -c
 tar --use-compress-program xz -xf %{_datadir}/%{name}-%{version}/%{name}-%{version}-%{_target_cpu}.tar.xz
 # patch loop
@@ -62,72 +60,198 @@ for kernel_version in %{?kernel_versions}; do
         module
   popd
 %{!?_nv_build_module_instances:
-%ifarch x86_64
-  pushd _kmod_build_${kernel_version%%___*}/uvm
-    make %{?_smp_mflags} \
-        KERNEL_UNAME="${kernel_version%%___*}" SYSSRC="${kernel_version##*___}" \
-        IGNORE_CC_MISMATCH=1 IGNORE_XEN_PRESENCE=1 IGNORE_PREEMPT_RT_PRESENCE=1 \
-        module
-  popd
-%endif
 }
 done
 
 
 %install
-rm -rf $RPM_BUILD_ROOT
 for kernel_version in %{?kernel_versions}; do
     mkdir -p  $RPM_BUILD_ROOT/%{kmodinstdir_prefix}/${kernel_version%%___*}/%{kmodinstdir_postfix}/
-%ifarch x86_64
-    install -D -m 0755 _kmod_build_${kernel_version%%___*}/{,uvm}/nvidia*.ko \
-%else
     install -D -m 0755 _kmod_build_${kernel_version%%___*}/nvidia.ko \
-%endif
          $RPM_BUILD_ROOT/%{kmodinstdir_prefix}/${kernel_version%%___*}/%{kmodinstdir_postfix}/
 done
 %{?akmod_install}
 
-
-%clean
-rm -rf $RPM_BUILD_ROOT
-
-
 %changelog
-* Wed Jun 10 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:340.76-2.2
+* Wed Apr 29 2020 Leigh Scott <leigh123linux@gmail.com> - 1:340.108-3
+- patch for kernel-5.6.0
+
+* Wed Feb 05 2020 RPM Fusion Release Engineering <leigh123linux@gmail.com> - 1:340.108-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_32_Mass_Rebuild
+
+* Mon Dec 23 2019 Leigh Scott <leigh123linux@gmail.com> - 1:340.108-1
+- Update to 340.108
+
+* Fri Dec 20 2019 Leigh Scott <leigh123linux@gmail.com> - 1:340.107-12
+- patch for kernel-5.4.0
+
+* Sun Nov 24 2019 João Carlos Mendes Luís <redhat@jonny.eng.br> - 1:340.107-11
+- patch for kernel-5.3.0
+
+* Thu Aug 29 2019 Leigh Scott <leigh123linux@googlemail.com> - 1:340.107-10
+- Exclude i686 for F31+
+
+* Sat Aug 10 2019 RPM Fusion Release Engineering <leigh123linux@gmail.com> - 1:340.107-9
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_31_Mass_Rebuild
+
+* Mon Jun 03 2019 Leigh Scott <leigh123linux@googlemail.com> - 1:340.107-8
+- patch for kernel-5.1.0
+
+* Wed Mar 27 2019 Leigh Scott <leigh123linux@googlemail.com> - 1:340.107-7
+- patch for kernel-5.0.0
+
+* Tue Mar 05 2019 RPM Fusion Release Engineering <leigh123linux@gmail.com> - 1:340.107-6
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_30_Mass_Rebuild
+
+* Sun Aug 19 2018 RPM Fusion Release Engineering <leigh123linux@gmail.com> - 1:340.107-5
+- Rebuilt for Fedora 29 Mass Rebuild binutils issue
+
+* Fri Jul 27 2018 RPM Fusion Release Engineering <sergio@serjux.com> - 1:340.107-4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
+
+* Fri Jul 27 2018 RPM Fusion Release Engineering <sergio@serjux.com> - 1:340.107-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
+
+* Sun Jun 10 2018 Leigh Scott <leigh123linux@googlemail.com> - 1:340.107-2
+- Remove UVM module as legacy GPU don't support Unified Memory. 
+
+* Fri Jun 08 2018 Leigh Scott <leigh123linux@googlemail.com> - 1:340.107-1
+- Update to 340.107
+
+* Fri Mar 02 2018 RPM Fusion Release Engineering <leigh123linux@googlemail.com> - 1:340.106-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_28_Mass_Rebuild
+
+* Wed Jan 17 2018 Wolfgang Ulbrich <chat-to-me@raveit.de> - 1:340.106-1
+- Update to 340.106
+
+* Thu Dec 07 2017 Leigh Scott <leigh123linux@googlemail.com> - 1:340.104-2
+- patch for kernel-4.14
+
+* Tue Sep 19 2017 Leigh Scott <leigh123linux@googlemail.com> - 1:340.104-1
+- Update to 340.104
+- Drop obsolete kernel patches
+- Rebase 4.11_kernel patch to fix compile
+
+* Thu Aug 31 2017 RPM Fusion Release Engineering <kwizart@rpmfusion.org> - 1:340.102-5
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Mass_Rebuild
+
+* Sun Jul 30 2017 Leigh Scott <leigh123linux@googlemail.com> - 1:340.102-4
+- patch for kernel-4.12
+- rebase patches
+
+* Sun Apr 23 2017 Leigh Scott <leigh123linux@googlemail.com> - 1:340.102-3
+- patch for kernel-4.11rc
+
+* Mon Feb 20 2017 Leigh Scott <leigh123linux@googlemail.com> - 1:340.102-2
+- patch for kernel-4.10
+
+* Wed Feb 15 2017 Leigh Scott <leigh123linux@googlemail.com> - 1:340.102-1
+- Update to 340.102
+
+* Sat Dec 17 2016 leigh scott <leigh123linux@googlemail.com> - 1:340.101-2
+- patch to fix loading module on 4.9 kernel
+
+* Wed Dec 14 2016 leigh scott <leigh123linux@googlemail.com> - 1:340.101-1
+- Update to 340.101
+
+* Tue Sep 27 2016 Leigh Scott <leigh123linux@googlemail.com> - 1:340.98-1
+- Update to 340.98
+
+* Sun Jul 24 2016 leigh scott <leigh123linux@googlemail.com> - 1:340.96-4
+- switch to akmod build
+
+* Fri Jul 01 2016 Leigh Scott <leigh123linux@googlemail.com> - 1:340.96-3
+- patch for kernel-4.6
+
+* Thu Jun 30 2016 Nicolas Chauvet <kwizart@gmail.com> - 1:340.96-2
+- Avoid armhfp for now
+
+* Tue Nov 17 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:340.96-1
+- Update to 340.96
+
+* Tue Oct 06 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:340.93-1.3
 - Rebuilt for kernel
 
-* Tue Jun 02 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:340.76-2.1
+* Wed Sep 23 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:340.93-1.2
 - Rebuilt for kernel
 
-* Mon May 25 2015 Leigh Scott <leigh123linux@googlemail.com> - 1:340.76-2
+* Wed Sep 16 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:340.93-1.1
+- Rebuilt for kernel
+
+* Thu Sep 03 2015 Leigh Scott <leigh123linux@googlemail.com> - 1:340.93-1
+- Update to 340.93
+
+* Fri Aug 21 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:340.76-3.3
+- Rebuilt for kernel
+
+* Thu Aug 13 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:340.76-3.2
+- Rebuilt for kernel
+
+* Fri Aug 07 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:340.76-3.1
+- Rebuilt for kernel
+
+* Fri Jul 31 2015 Leigh Scott <leigh123linux@googlemail.com> - 1:340.76-3
+- add missing obsoletes
+
+* Thu Jul 30 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:340.76-2.19
+- Rebuilt for kernel
+
+* Fri Jul 24 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:340.76-2.18
+- Rebuilt for kernel
+
+* Thu Jul 16 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:340.76-2.17
+- Rebuilt for kernel
+
+* Thu Jul 02 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:340.76-2.16
+- Rebuilt for kernel
+
+* Sun Jun 28 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:340.76-2.15
+- Rebuilt for kernel
+
+* Wed Jun 10 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:340.76-2.14
+- Rebuilt for kernel
+
+* Tue Jun 02 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:340.76-2.13
+- Rebuilt for kernel
+
+* Sun May 24 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:340.76-2.12
+- Rebuilt for kernel
+
+* Wed May 20 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:340.76-2.11
+- Rebuilt for kernel
+
+* Wed May 13 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:340.76-2.10
+- Rebuilt for kernel
+
+* Sat May 09 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:340.76-2.9
+- Rebuilt for kernel
+
+* Sat May 02 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:340.76-2.8
+- Rebuilt for kernel
+
+* Wed Apr 22 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:340.76-2.7
+- Rebuilt for kernel
+
+* Wed Apr 15 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:340.76-2.6
+- Rebuilt for kernel
+
+* Mon Mar 30 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:340.76-2.5
+- Rebuilt for kernel
+
+* Fri Mar 27 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:340.76-2.4
+- Rebuilt for kernel
+
+* Mon Mar 23 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:340.76-2.3
+- Rebuilt for kernel
+
+* Sat Mar 21 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:340.76-2.2
+- Rebuilt for kernel
+
+* Tue Mar 10 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:340.76-2.1
+- Rebuilt for kernel
+
+* Thu Mar 05 2015 Leigh Scott <leigh123linux@googlemail.com> - 1:340.76-2
 - Patch for 4.0.0 kernel
-
-* Sun May 24 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:340.76-1.14
-- Rebuilt for kernel
-
-* Wed May 13 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:340.76-1.13
-- Rebuilt for kernel
-
-* Sat May 09 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:340.76-1.12
-- Rebuilt for kernel
-
-* Sat May 02 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:340.76-1.11
-- Rebuilt for kernel
-
-* Wed Apr 22 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:340.76-1.10
-- Rebuilt for kernel
-
-* Wed Apr 15 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:340.76-1.9
-- Rebuilt for kernel
-
-* Mon Mar 30 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:340.76-1.8
-- Rebuilt for kernel
-
-* Tue Mar 10 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:340.76-1.7
-- Rebuilt for kernel
-
-* Fri Mar 06 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:340.76-1.6
-- Rebuilt for kernel
 
 * Sat Feb 14 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:340.76-1.5
 - Rebuilt for kernel
@@ -147,16 +271,11 @@ rm -rf $RPM_BUILD_ROOT
 - Drop kernel 3.19 patch
 - Do not build uvm driver on architectures other than x86_64 (follow main)
 
-* Tue Jan 27 2015 Leigh Scott <leigh123linux@googlemail.com> - 1:340.65-4
-- revert commit (don't replace main driver)
-- fix 3.19 patch for rc6
-
-* Fri Jan 16 2015 Przemysław Palacz <pprzemal@gmail.com> - 1:340.65-3.1
+* Wed Jan 21 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:340.65-2.2
 - Rebuilt for kernel
 
-* Thu Jan 15 2015 Przemysław Palacz <pprzemal@gmail.com> - 1:340.65-3
-- Replace main nvidia driver in F20 with this legacy version
-- Remove deprecated BuildRoot tag
+* Thu Jan 15 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:340.65-2.1
+- Rebuilt for kernel
 
 * Sat Jan 10 2015 Przemysław Palacz <pprzemal@gmail.com> - 1:340.65-2
 - Bring back part of the old patch for kernel 3.18
