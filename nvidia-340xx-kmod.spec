@@ -22,6 +22,7 @@ Source11:      nvidia-kmodtool-excludekernel-filterfile
 Patch0:        nv-linux-arm.patch
 Patch1:        kernel-5.6.patch
 
+BuildRequires: elfutils-libelf-devel
 BuildRequires: gcc
 
 ExclusiveArch:  i686 x86_64
