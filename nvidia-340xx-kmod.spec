@@ -3,14 +3,16 @@
 # "buildforkernels newest" macro for just that build; immediately after
 # queuing that build enable the macro again for subsequent builds; that way
 # a new akmod package will only get build when a new one is actually needed
+%if 0%{?fedora}
 %global buildforkernels akmod
 %global debug_package %{nil}
+%endif
 
 Name:          nvidia-340xx-kmod
 Epoch:         1
 Version:       340.108
 # Taken over by kmodtool
-Release:       3%{?dist}
+Release:       5%{?dist}
 Summary:       NVIDIA display driver kernel module
 Group:         System Environment/Kernel
 License:       Redistributable, no modification permitted
@@ -18,7 +20,10 @@ URL:           http://www.nvidia.com/
 
 Source11:      nvidia-kmodtool-excludekernel-filterfile
 Patch0:        nv-linux-arm.patch
-Patch1:        kernel-5.6.patch
+Patch1:        kernel-5.7.patch
+
+BuildRequires: elfutils-libelf-devel
+BuildRequires: gcc
 
 ExclusiveArch:  i686 x86_64
 
@@ -42,8 +47,8 @@ kmodtool  --target %{_target_cpu}  --repo rpmfusion --kmodname %{name} --filterf
 %setup -T -c
 tar --use-compress-program xz -xf %{_datadir}/%{name}-%{version}/%{name}-%{version}-%{_target_cpu}.tar.xz
 # patch loop
-%patch0 -p1
 %patch1 -p1
+%patch0 -p1
 
 for kernel_version  in %{?kernel_versions} ; do
     cp -a kernel _kmod_build_${kernel_version%%___*}
@@ -73,6 +78,12 @@ done
 %{?akmod_install}
 
 %changelog
+* Sun Jul 05 2020 Leigh Scott <leigh123linux@gmail.com> - 1:340.108-5
+- patch for kernel-5.7.0
+
+* Mon May 18 2020 Nicolas Chauvet <kwizart@gmail.com> - 1:340.108-4
+- Bump for current
+
 * Wed Apr 29 2020 Leigh Scott <leigh123linux@gmail.com> - 1:340.108-3
 - patch for kernel-5.6.0
 
