@@ -12,7 +12,7 @@ Name:          nvidia-340xx-kmod
 Epoch:         1
 Version:       340.108
 # Taken over by kmodtool
-Release:       5%{?dist}
+Release:       6%{?dist}
 Summary:       NVIDIA display driver kernel module
 Group:         System Environment/Kernel
 License:       Redistributable, no modification permitted
@@ -21,6 +21,7 @@ URL:           http://www.nvidia.com/
 Source11:      nvidia-kmodtool-excludekernel-filterfile
 Patch0:        nv-linux-arm.patch
 Patch1:        kernel-5.7.patch
+Patch2:        kernel-5.8.patch
 
 BuildRequires: elfutils-libelf-devel
 BuildRequires: gcc
@@ -48,6 +49,7 @@ kmodtool  --target %{_target_cpu}  --repo rpmfusion --kmodname %{name} --filterf
 tar --use-compress-program xz -xf %{_datadir}/%{name}-%{version}/%{name}-%{version}-%{_target_cpu}.tar.xz
 # patch loop
 %patch1 -p1
+%patch2 -p1
 %patch0 -p1
 
 for kernel_version  in %{?kernel_versions} ; do
@@ -78,8 +80,11 @@ done
 %{?akmod_install}
 
 %changelog
+* Wed Aug 12 2020 Leigh Scott <leigh123linux@gmail.com> - 1:340.108-6
+- Patch for kernel-5.8.0
+
 * Sun Jul 05 2020 Leigh Scott <leigh123linux@gmail.com> - 1:340.108-5
-- patch for kernel-5.7.0
+- Patch for kernel-5.7.0
 
 * Mon May 18 2020 Nicolas Chauvet <kwizart@gmail.com> - 1:340.108-4
 - Bump for current
