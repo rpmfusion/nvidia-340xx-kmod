@@ -22,6 +22,7 @@ Source11:      nvidia-kmodtool-excludekernel-filterfile
 Patch0:        nv-linux-arm.patch
 Patch1:        kernel-5.7.patch
 Patch2:        kernel-5.8.patch
+Patch3:        kernel-5.9.patch
 
 BuildRequires: elfutils-libelf-devel
 BuildRequires: gcc
@@ -50,6 +51,7 @@ tar --use-compress-program xz -xf %{_datadir}/%{name}-%{version}/%{name}-%{versi
 # patch loop
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
 %patch0 -p1
 
 for kernel_version  in %{?kernel_versions} ; do
@@ -80,6 +82,9 @@ done
 %{?akmod_install}
 
 %changelog
+* Thu Nov 19 2020 Thaison Nguyen <thieson08@me.com> - 1:340.108-7
+- Patch for kernel-5.9.0
+
 * Wed Aug 12 2020 Leigh Scott <leigh123linux@gmail.com> - 1:340.108-6
 - Patch for kernel-5.8.0
 
