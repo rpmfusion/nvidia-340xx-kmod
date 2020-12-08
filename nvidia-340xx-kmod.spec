@@ -83,7 +83,7 @@ done
 
 %changelog
 * Thu Nov 19 2020 Thaison Nguyen <thieson08@me.com> - 1:340.108-7
-- Patch for kernel-5.9.0 
+- Patch for kernel-5.9.0
 
 * Wed Aug 12 2020 Leigh Scott <leigh123linux@gmail.com> - 1:340.108-6
 - Patch for kernel-5.8.0
