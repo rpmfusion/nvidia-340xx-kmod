@@ -1,0 +1,24 @@
+diff -Naur a/kernel/nv-drm.c b/kernel/nv-drm.c
+--- a/kernel/nv-drm.c	2020-12-15 21:24:49.983592055 +0100
++++ b/kernel/nv-drm.c	2020-12-15 21:27:50.188647605 +0100
+@@ -13,6 +13,7 @@
+ #include "nv-misc.h"
+ #include "os-interface.h"
+ #include "nv-linux.h"
++#include <linux/version.h>
+ 
+ #if defined(NV_DRM_AVAILABLE)
+ 
+@@ -365,7 +365,11 @@
+     struct nv_gem_object *nv_obj = container_of(obj, struct nv_gem_object, base);
+     int page_count = obj->size >> PAGE_SHIFT;
+ 
+-    return drm_prime_pages_to_sg(nv_obj->pages, page_count);
++    #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 10, 0)
++        return drm_prime_pages_to_sg(obj->dev, nv_obj->pages, page_count);
++    #else
++        return drm_prime_pages_to_sg(nv_obj->pages, page_count);
++    #endif
+ }
+ 
+ static void* nv_gem_prime_vmap(
