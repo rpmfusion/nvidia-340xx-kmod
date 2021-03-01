@@ -12,7 +12,7 @@ Name:          nvidia-340xx-kmod
 Epoch:         1
 Version:       340.108
 # Taken over by kmodtool
-Release:       10%{?dist}
+Release:       11%{?dist}
 Summary:       NVIDIA display driver kernel module
 Group:         System Environment/Kernel
 License:       Redistributable, no modification permitted
@@ -24,6 +24,7 @@ Patch1:        kernel-5.7.patch
 Patch2:        kernel-5.8.patch
 Patch3:        kernel-5.9.patch
 Patch4:        kernel-5.10.patch
+Patch5:        kernel-5.11.patch
 
 BuildRequires: elfutils-libelf-devel
 BuildRequires: gcc
@@ -54,6 +55,7 @@ tar --use-compress-program xz -xf %{_datadir}/%{name}-%{version}/%{name}-%{versi
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
+%patch5 -p1
 %patch0 -p1
 
 for kernel_version  in %{?kernel_versions} ; do
