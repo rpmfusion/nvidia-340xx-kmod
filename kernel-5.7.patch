@@ -1,5 +1,4 @@
-diff --git a/kernel/Makefile b/kernel/Makefile
-index 125a690..2597080 100644
+diff -Naur a/kernel/Makefile b/kernel/Makefile
 --- a/kernel/Makefile
 +++ b/kernel/Makefile
 @@ -108,12 +108,14 @@ COMPILE_TESTS = \
@@ -34,8 +33,7 @@ index 125a690..2597080 100644
  	drm_legacy_pci_init \
  	timer_setup \
  	do_gettimeofday \
-diff --git a/kernel/conftest.sh b/kernel/conftest.sh
-index b7a85f0..a5225e5 100755
+diff -Naur a/kernel/conftest.sh b/kernel/conftest.sh
 --- a/kernel/conftest.sh
 +++ b/kernel/conftest.sh
 @@ -176,6 +176,7 @@ test_headers() {
@@ -161,8 +159,7 @@ index b7a85f0..a5225e5 100755
          drm_legacy_pci_init)
              #
              # Determine if drm_legacy_pci_init() is present. drm_pci_init() was
-diff --git a/kernel/dkms.conf b/kernel/dkms.conf
-index 79a02ae..3140f03 100644
+diff -Naur a/kernel/dkms.conf b/kernel/dkms.conf
 --- a/kernel/dkms.conf
 +++ b/kernel/dkms.conf
 @@ -1,7 +1,13 @@
@@ -180,8 +177,7 @@ index 79a02ae..3140f03 100644
 +MAKE[0]="make -j$num_cpu_cores module KERNEL_UNAME=${kernelver}"
  CLEAN="make clean"
  AUTOINSTALL="yes"
-diff --git a/kernel/nv-drm.c b/kernel/nv-drm.c
-index 0d1cdbf..85db07e 100644
+diff -Naur a/kernel/nv-drm.c b/kernel/nv-drm.c
 --- a/kernel/nv-drm.c
 +++ b/kernel/nv-drm.c
 @@ -50,9 +50,236 @@
@@ -422,8 +418,7 @@ index 0d1cdbf..85db07e 100644
  #endif
  
  extern nv_linux_state_t *nv_linux_devices;
-diff --git a/kernel/nv-linux.h b/kernel/nv-linux.h
-index a1d2c68..83e6433 100644
+diff -Naur a/kernel/nv-linux.h b/kernel/nv-linux.h
 --- a/kernel/nv-linux.h
 +++ b/kernel/nv-linux.h
 @@ -688,11 +688,16 @@ extern nv_spinlock_t km_lock;
@@ -522,8 +517,7 @@ index a1d2c68..83e6433 100644
  
  #endif  /* CONFIG_PROC_FS */
  
-diff --git a/kernel/nv-procfs.c b/kernel/nv-procfs.c
-index ebca3e8..9365c3c 100644
+diff -Naur a/kernel/nv-procfs.c b/kernel/nv-procfs.c
 --- a/kernel/nv-procfs.c
 +++ b/kernel/nv-procfs.c
 @@ -409,6 +409,15 @@ done:
@@ -574,8 +568,7 @@ index ebca3e8..9365c3c 100644
  
  static int
  nv_procfs_read_text_file(
-diff --git a/kernel/nv-time.h b/kernel/nv-time.h
-index a34ceb2..780f8bc 100644
+diff -Naur a/kernel/nv-time.h b/kernel/nv-time.h
 --- a/kernel/nv-time.h
 +++ b/kernel/nv-time.h
 @@ -28,7 +28,12 @@
@@ -601,8 +594,7 @@ index a34ceb2..780f8bc 100644
          .tv_sec = now.tv_sec,
          .tv_usec = now.tv_nsec/1000,
      };
-diff --git a/kernel/nv.c b/kernel/nv.c
-index a167be9..a218f83 100644
+diff -Naur a/kernel/nv.c b/kernel/nv.c
 --- a/kernel/nv.c
 +++ b/kernel/nv.c
 @@ -752,7 +752,7 @@ int __init nvidia_init_module(void)
@@ -614,8 +606,7 @@ index a167be9..a218f83 100644
      if (nv_stack_t_cache == NULL)
      {
          nv_printf(NV_DBG_ERRORS, "NVRM: stack cache allocation failed!\n");
-diff --git a/kernel/os-interface.c b/kernel/os-interface.c
-index 7190b26..0c0dc05 100644
+diff -Naur a/kernel/os-interface.c b/kernel/os-interface.c
 --- a/kernel/os-interface.c
 +++ b/kernel/os-interface.c
 @@ -439,7 +439,7 @@ RM_STATUS NV_API_CALL os_get_current_time(
@@ -648,8 +639,7 @@ index 7190b26..0c0dc05 100644
  #endif
  
      nv_gettimeofday(&tm_aux);
-diff --git a/kernel/uvm/Makefile b/kernel/uvm/Makefile
-index 0cad8ff..043a08d 100644
+diff -Naur a/kernel/uvm/Makefile b/kernel/uvm/Makefile
 --- a/kernel/uvm/Makefile
 +++ b/kernel/uvm/Makefile
 @@ -207,6 +207,7 @@ ccflags-y += $(EXTRA_CFLAGS)
@@ -660,8 +650,7 @@ index 0cad8ff..043a08d 100644
  
  module $(MODULE_NAME).ko: $(UVM_MODULE_SYMVERS) debug_diagnostics_printing
  
-diff --git a/kernel/uvm/conftest.sh b/kernel/uvm/conftest.sh
-index b7a85f0..33e2a63 100755
+diff -Naur a/kernel/uvm/conftest.sh b/kernel/uvm/conftest.sh
 --- a/kernel/uvm/conftest.sh
 +++ b/kernel/uvm/conftest.sh
 @@ -176,6 +176,7 @@ test_headers() {
@@ -682,8 +671,7 @@ index b7a85f0..33e2a63 100755
              #if defined(NV_ASM_SET_MEMORY_H_PRESENT)
              #include <asm/set_memory.h>
              #else
-diff --git a/kernel/uvm/nvidia_uvm_lite.c b/kernel/uvm/nvidia_uvm_lite.c
-index 6943e7c..9a7e3b6 100644
+diff -Naur a/kernel/uvm/nvidia_uvm_lite.c b/kernel/uvm/nvidia_uvm_lite.c
 --- a/kernel/uvm/nvidia_uvm_lite.c
 +++ b/kernel/uvm/nvidia_uvm_lite.c
 @@ -131,8 +131,8 @@ static
