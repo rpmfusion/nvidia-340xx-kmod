@@ -87,7 +87,7 @@ done
 %{?akmod_install}
 
 %changelog
-* Thu Nov 11 2020 Łukasz Wojniłowicz <lukasz.wojnilowicz@gmail.com> - 1:340.108-15
+* Thu Nov 11 2021 Łukasz Wojniłowicz <lukasz.wojnilowicz@gmail.com> - 1:340.108-15
 - Patch for kernel-5.14.0
 
 * Wed Aug 04 2021 RPM Fusion Release Engineering <leigh123linux@gmail.com> - 1:340.108-14
