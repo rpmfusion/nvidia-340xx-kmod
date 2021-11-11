@@ -12,7 +12,7 @@ Name:          nvidia-340xx-kmod
 Epoch:         1
 Version:       340.108
 # Taken over by kmodtool
-Release:       14%{?dist}
+Release:       15%{?dist}
 Summary:       NVIDIA display driver kernel module
 Group:         System Environment/Kernel
 License:       Redistributable, no modification permitted
@@ -25,6 +25,7 @@ Patch2:        kernel-5.8.patch
 Patch3:        kernel-5.9.patch
 Patch4:        kernel-5.10.patch
 Patch5:        kernel-5.11.patch
+Patch6:        kernel-5.14.patch
 
 BuildRequires: elfutils-libelf-devel
 BuildRequires: gcc
@@ -56,6 +57,7 @@ tar --use-compress-program xz -xf %{_datadir}/%{name}-%{version}/%{name}-%{versi
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
+%patch6 -p1
 %patch0 -p1
 
 for kernel_version  in %{?kernel_versions} ; do
@@ -85,6 +87,9 @@ done
 %{?akmod_install}
 
 %changelog
+* Thu Nov 11 2021 Łukasz Wojniłowicz <lukasz.wojnilowicz@gmail.com> - 1:340.108-15
+- Patch for kernel-5.14.0
+
 * Wed Aug 04 2021 RPM Fusion Release Engineering <leigh123linux@gmail.com> - 1:340.108-14
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_35_Mass_Rebuild
 
