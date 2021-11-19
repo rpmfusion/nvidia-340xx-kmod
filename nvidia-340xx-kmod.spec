@@ -12,7 +12,7 @@ Name:          nvidia-340xx-kmod
 Epoch:         1
 Version:       340.108
 # Taken over by kmodtool
-Release:       15%{?dist}
+Release:       16%{?dist}
 Summary:       NVIDIA display driver kernel module
 Group:         System Environment/Kernel
 License:       Redistributable, no modification permitted
@@ -87,6 +87,9 @@ done
 %{?akmod_install}
 
 %changelog
+* Fri Nov 19 2021 Nicolas Chauvet <kwizart@gmail.com> - 1:340.108-16
+- Rebuilt
+
 * Thu Nov 11 2021 Łukasz Wojniłowicz <lukasz.wojnilowicz@gmail.com> - 1:340.108-15
 - Patch for kernel-5.14.0
 
