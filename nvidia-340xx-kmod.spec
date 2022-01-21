@@ -12,20 +12,15 @@ Name:          nvidia-340xx-kmod
 Epoch:         1
 Version:       340.108
 # Taken over by kmodtool
-Release:       16%{?dist}
+Release:       17%{?dist}
 Summary:       NVIDIA display driver kernel module
 Group:         System Environment/Kernel
 License:       Redistributable, no modification permitted
 URL:           http://www.nvidia.com/
 
 Source11:      nvidia-kmodtool-excludekernel-filterfile
-Patch0:        nv-linux-arm.patch
-Patch1:        kernel-5.7.patch
-Patch2:        kernel-5.8.patch
-Patch3:        kernel-5.9.patch
-Patch4:        kernel-5.10.patch
-Patch5:        kernel-5.11.patch
-Patch6:        kernel-5.14.patch
+Patch0:        import-files-from-390.147.patch
+Patch1:        fix-build-issues.patch
 
 BuildRequires: elfutils-libelf-devel
 BuildRequires: gcc
@@ -52,13 +47,8 @@ kmodtool  --target %{_target_cpu}  --repo rpmfusion --kmodname %{name} --filterf
 %setup -T -c
 tar --use-compress-program xz -xf %{_datadir}/%{name}-%{version}/%{name}-%{version}-%{_target_cpu}.tar.xz
 # patch loop
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
-%patch4 -p1
-%patch5 -p1
-%patch6 -p1
 %patch0 -p1
+%patch1 -p1
 
 for kernel_version  in %{?kernel_versions} ; do
     cp -a kernel _kmod_build_${kernel_version%%___*}
@@ -87,6 +77,9 @@ done
 %{?akmod_install}
 
 %changelog
+* Fri Jan 21 2022 Łukasz Wojniłowicz <lukasz.wojnilowicz@gmail.com> - 1:340.108-17
+- Reduce the patchset to two patches
+
 * Fri Nov 19 2021 Nicolas Chauvet <kwizart@gmail.com> - 1:340.108-16
 - Rebuilt
 
