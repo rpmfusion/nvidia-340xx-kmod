@@ -1,7 +1,7 @@
 diff -Naur a/kernel/conftest.Kbuild b/kernel/conftest.Kbuild
 --- a/kernel/conftest.Kbuild	1970-01-01 01:00:00.000000000 +0100
-+++ b/kernel/conftest.Kbuild	2022-01-21 18:38:55.073844408 +0100
-@@ -0,0 +1,212 @@
++++ b/kernel/conftest.Kbuild	2022-04-03 09:54:09.789517505 +0200
+@@ -0,0 +1,213 @@
 +NV_CONFTEST_GENERIC_COMPILE_TESTS += drm_available
 +NV_CONFTEST_GENERIC_COMPILE_TESTS += drm_atomic_available
 +NV_CONFTEST_GENERIC_COMPILE_TESTS += dom0_kernel_present
@@ -37,6 +37,7 @@ diff -Naur a/kernel/conftest.Kbuild b/kernel/conftest.Kbuild
 +NV_CONFTEST_FUNCTION_COMPILE_TESTS += get_num_physpages
 +NV_CONFTEST_FUNCTION_COMPILE_TESTS += proc_create_data
 +NV_CONFTEST_FUNCTION_COMPILE_TESTS += pde_data
++NV_CONFTEST_FUNCTION_COMPILE_TESTS += PDE_DATA
 +NV_CONFTEST_FUNCTION_COMPILE_TESTS += proc_remove
 +NV_CONFTEST_FUNCTION_COMPILE_TESTS += pm_vt_switch_required
 +NV_CONFTEST_FUNCTION_COMPILE_TESTS += pci_save_state
@@ -215,8 +216,8 @@ diff -Naur a/kernel/conftest.Kbuild b/kernel/conftest.Kbuild
 +
 +$(NV_CONFTEST_HEADERS): | $(BUILD_SANITY_CHECKS)
 diff -Naur a/kernel/conftest.sh b/kernel/conftest.sh
---- a/kernel/conftest.sh	2022-01-21 18:37:50.022267249 +0100
-+++ b/kernel/conftest.sh	2022-01-21 18:38:55.082844211 +0100
+--- a/kernel/conftest.sh	2022-04-03 09:53:53.384897612 +0200
++++ b/kernel/conftest.sh	2022-04-03 09:54:09.792517436 +0200
 @@ -113,6 +113,7 @@
      FILES="$FILES drm/drm_vblank.h"
      FILES="$FILES drm/drm_file.h"
@@ -379,7 +380,44 @@ diff -Naur a/kernel/conftest.sh b/kernel/conftest.sh
          sg_table)
              #
              # Determine if the struct sg_table type is present.
-@@ -2034,6 +2147,21 @@
+@@ -1795,15 +1908,35 @@
+ 
+         pde_data)
+             #
++            # Determine if the pde_data() function is present.
++            #
++            # The commit c28198889c15 removed the function
++            # 'PDE_DATA()', and replaced it with 'pde_data()'
++            # ("proc: remove PDE_DATA() completely") in v5.17-rc1.
++            #
++            CODE="
++            #include <linux/proc_fs.h>
++            void conftest_pde_data(void) {
++                pde_data();
++            }"
++
++            compile_check_conftest "$CODE" "NV_PDE_DATA_PRESENT" "" "functions"
++        ;;
++
++        PDE_DATA)
++            #
+             # Determine if the PDE_DATA() function is present.
+             #
++            # Added by commit d9dda78bad87
++            # ("procfs: new helper - PDE_DATA(inode)") in v3.10
++            #
+             CODE="
+             #include <linux/proc_fs.h>
+             void conftest_PDE_DATA(void) {
+                 PDE_DATA();
+             }"
+ 
+-            compile_check_conftest "$CODE" "NV_PDE_DATA_PRESENT" "" "functions"
++            compile_check_conftest "$CODE" "NV_PDE_DATA_UPPER_CASE_PRESENT" "" "functions"
+         ;;
+ 
+         get_num_physpages)
+@@ -2034,6 +2167,21 @@
              compile_check_conftest "$CODE" "NV_FILE_HAS_INODE" "" "types"
          ;;
  
@@ -401,7 +439,7 @@ diff -Naur a/kernel/conftest.sh b/kernel/conftest.sh
          xen_ioemu_inject_msi)
              #
              # Determine if the xen_ioemu_inject_msi() function is present.
-@@ -3411,6 +3539,64 @@
+@@ -3411,6 +3559,64 @@
              compile_check_conftest "$CODE" "NV_DRM_DRIVER_UNLOAD_HAS_INT_RETURN_TYPE" "" "types"
          ;;
  
@@ -466,7 +504,7 @@ diff -Naur a/kernel/conftest.sh b/kernel/conftest.sh
          kref_has_refcount_of_type_refcount_t)
              CODE="
              #include <linux/kref.h>
-@@ -3963,6 +4149,30 @@
+@@ -3963,6 +4169,30 @@
              compile_check_conftest "$CODE" "NV_DMA_IS_DIRECT_PRESENT" "" "functions"
          ;;
  
@@ -1152,8 +1190,8 @@ diff -Naur a/kernel/nvidia-modules-common.mk b/kernel/nvidia-modules-common.mk
  	@$(RM) -rf Module*.symvers .tmp_versions modules.order
  
 diff -Naur a/kernel/nv-linux.h b/kernel/nv-linux.h
---- a/kernel/nv-linux.h	2022-01-21 18:37:49.978268211 +0100
-+++ b/kernel/nv-linux.h	2022-01-21 18:38:55.092843992 +0100
+--- a/kernel/nv-linux.h	2022-04-03 09:53:53.350898400 +0200
++++ b/kernel/nv-linux.h	2022-04-03 09:54:09.795517366 +0200
 @@ -119,12 +119,15 @@
  #include <asm/tlbflush.h>           /* flush_tlb(), flush_tlb_all()     */
  #include <linux/cpu.h>              /* CPU hotplug support              */
@@ -1274,7 +1312,21 @@ diff -Naur a/kernel/nv-linux.h b/kernel/nv-linux.h
  
  /*
   * proc_mkdir_mode exists in Linux 2.6.9, but isn't exported until Linux 3.0.
-@@ -2023,6 +2065,24 @@
+@@ -2010,9 +2052,11 @@
+     })
+ 
+ #if defined(NV_PDE_DATA_PRESENT)
+-# define NV_PDE_DATA(inode) PDE_DATA(inode)
++#define NV_PDE_DATA(inode) pde_data(inode)
++#elif defined(NV_PDE_DATA_UPPER_CASE_PRESENT)
++#define NV_PDE_DATA(inode) PDE_DATA(inode)
+ #else
+-# define NV_PDE_DATA(inode) PDE(inode)->data
++#define NV_PDE_DATA(inode) PDE(inode)->data
+ #endif
+ 
+ #if defined(NV_PROC_REMOVE_PRESENT)
+@@ -2023,6 +2067,24 @@
      remove_proc_entry(entry->name, entry->parent);
  #endif
  
@@ -1299,7 +1351,7 @@ diff -Naur a/kernel/nv-linux.h b/kernel/nv-linux.h
  #define NV_DEFINE_PROCFS_SINGLE_FILE(__name)                                  \
      static int nv_procfs_open_##__name(                                       \
          struct inode *inode,                                                  \
-@@ -2040,6 +2100,7 @@
+@@ -2040,6 +2102,7 @@
          .llseek     = seq_lseek,                                              \
          .release    = single_release,                                         \
      };
@@ -1307,7 +1359,7 @@ diff -Naur a/kernel/nv-linux.h b/kernel/nv-linux.h
  
  #endif  /* CONFIG_PROC_FS */
  
-@@ -2187,9 +2248,13 @@
+@@ -2187,9 +2250,13 @@
                  flags |= FOLL_FORCE;
  
          #if defined(NV_GET_USER_PAGES_REMOTE_HAS_LOCKED_ARG)
