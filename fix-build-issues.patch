@@ -1,7 +1,7 @@
 diff -Naur a/kernel/conftest.Kbuild b/kernel/conftest.Kbuild
 --- a/kernel/conftest.Kbuild	1970-01-01 01:00:00.000000000 +0100
-+++ b/kernel/conftest.Kbuild	2022-04-03 09:54:09.789517505 +0200
-@@ -0,0 +1,213 @@
++++ b/kernel/conftest.Kbuild	2022-06-05 13:19:33.726279089 +0200
+@@ -0,0 +1,241 @@
 +NV_CONFTEST_GENERIC_COMPILE_TESTS += drm_available
 +NV_CONFTEST_GENERIC_COMPILE_TESTS += drm_atomic_available
 +NV_CONFTEST_GENERIC_COMPILE_TESTS += dom0_kernel_present
@@ -64,6 +64,20 @@ diff -Naur a/kernel/conftest.Kbuild b/kernel/conftest.Kbuild
 +NV_CONFTEST_FUNCTION_COMPILE_TESTS += drm_framebuffer_get
 +NV_CONFTEST_FUNCTION_COMPILE_TESTS += drm_connector_for_each_possible_encoder
 +NV_CONFTEST_FUNCTION_COMPILE_TESTS += vga_tryget
++NV_CONFTEST_FUNCTION_COMPILE_TESTS += acpi_bus_get_device
++
++NV_CONFTEST_FUNCTION_COMPILE_TESTS += remap_page_range
++NV_CONFTEST_FUNCTION_COMPILE_TESTS += address_space_init_once
++NV_CONFTEST_FUNCTION_COMPILE_TESTS += kbasename
++NV_CONFTEST_FUNCTION_COMPILE_TESTS += fatal_signal_pending
++NV_CONFTEST_FUNCTION_COMPILE_TESTS += list_cut_position
++NV_CONFTEST_FUNCTION_COMPILE_TESTS += vzalloc
++NV_CONFTEST_FUNCTION_COMPILE_TESTS += wait_on_bit_lock_argument_count
++NV_CONFTEST_FUNCTION_COMPILE_TESTS += bitmap_clear
++NV_CONFTEST_FUNCTION_COMPILE_TESTS += usleep_range
++NV_CONFTEST_FUNCTION_COMPILE_TESTS += radix_tree_empty
++NV_CONFTEST_FUNCTION_COMPILE_TESTS += radix_tree_replace_slot
++NV_CONFTEST_FUNCTION_COMPILE_TESTS += ktime_get_raw_ts64
 +
 +NV_CONFTEST_SYMBOL_COMPILE_TESTS += efi_enabled
 +NV_CONFTEST_SYMBOL_COMPILE_TESTS += export_symbol_gpl_conftest
@@ -103,6 +117,20 @@ diff -Naur a/kernel/conftest.Kbuild b/kernel/conftest.Kbuild
 +NV_CONFTEST_TYPE_COMPILE_TESTS += drm_driver_has_gem_free_object
 +NV_CONFTEST_TYPE_COMPILE_TESTS += drm_driver_has_gem_prime_res_obj
 +NV_CONFTEST_TYPE_COMPILE_TESTS += vmalloc_has_pgprot_t_arg
++
++NV_CONFTEST_TYPE_COMPILE_TESTS += vm_operations_struct
++NV_CONFTEST_TYPE_COMPILE_TESTS += task_struct
++NV_CONFTEST_TYPE_COMPILE_TESTS += kuid_t
++NV_CONFTEST_TYPE_COMPILE_TESTS += fault_flags
++NV_CONFTEST_TYPE_COMPILE_TESTS += atomic64_type
++NV_CONFTEST_TYPE_COMPILE_TESTS += address_space
++NV_CONFTEST_TYPE_COMPILE_TESTS += backing_dev_info
++NV_CONFTEST_TYPE_COMPILE_TESTS += mm_context_t
++NV_CONFTEST_TYPE_COMPILE_TESTS += vm_ops_fault_removed_vma_arg
++NV_CONFTEST_TYPE_COMPILE_TESTS += proc_ops
++NV_CONFTEST_TYPE_COMPILE_TESTS += pnv_npu2_init_context
++NV_CONFTEST_TYPE_COMPILE_TESTS += kmem_cache_has_kobj_remove_work
++NV_CONFTEST_TYPE_COMPILE_TESTS += sysfs_slab_unlink
 +
 +NV_CONFTEST_MACRO_COMPILE_TESTS += INIT_WORK
 +
@@ -216,8 +244,8 @@ diff -Naur a/kernel/conftest.Kbuild b/kernel/conftest.Kbuild
 +
 +$(NV_CONFTEST_HEADERS): | $(BUILD_SANITY_CHECKS)
 diff -Naur a/kernel/conftest.sh b/kernel/conftest.sh
---- a/kernel/conftest.sh	2022-04-03 09:53:53.384897612 +0200
-+++ b/kernel/conftest.sh	2022-04-03 09:54:09.792517436 +0200
+--- a/kernel/conftest.sh	2022-06-05 13:18:33.949571878 +0200
++++ b/kernel/conftest.sh	2022-06-05 13:19:33.730279003 +0200
 @@ -113,6 +113,7 @@
      FILES="$FILES drm/drm_vblank.h"
      FILES="$FILES drm/drm_file.h"
@@ -242,7 +270,7 @@ diff -Naur a/kernel/conftest.sh b/kernel/conftest.sh
      FILES="$FILES linux/dma-resv.h"
      FILES="$FILES linux/dma-map-ops.h"
      FILES="$FILES linux/stdarg.h"
-@@ -143,6 +146,8 @@
+@@ -144,6 +147,8 @@
      FILES_ARCH="$FILES_ARCH asm/powernv.h"
      FILES_ARCH="$FILES_ARCH asm/tlbflush.h"
      FILES_ARCH="$FILES_ARCH asm/pgtable_types.h"
@@ -251,7 +279,7 @@ diff -Naur a/kernel/conftest.sh b/kernel/conftest.sh
  
      translate_and_find_header_files $HEADERS      $FILES
      translate_and_find_header_files $HEADERS_ARCH $FILES_ARCH
-@@ -663,6 +668,63 @@
+@@ -664,6 +669,63 @@
              compile_check_conftest "$CODE" "NV_FOLLOW_PFN_PRESENT" "" "functions"
          ;;
  
@@ -315,7 +343,7 @@ diff -Naur a/kernel/conftest.sh b/kernel/conftest.sh
          i2c_adapter)
              #
              # Determine if the 'i2c_adapter' structure has the
-@@ -1111,6 +1173,16 @@
+@@ -1112,6 +1174,16 @@
              compile_check_conftest "$CODE" "NV_CPUHP_SETUP_STATE_PRESENT" "" "functions"
          ;;
  
@@ -332,7 +360,7 @@ diff -Naur a/kernel/conftest.sh b/kernel/conftest.sh
          acpi_evaluate_integer)
              #
              # Determine if the acpi_evaluate_integer() function is
-@@ -1426,6 +1498,47 @@
+@@ -1427,6 +1499,47 @@
              compile_check_conftest "$CODE" "NV_FILE_OPERATIONS_HAS_COMPAT_IOCTL" "" "types"
          ;;
  
@@ -380,27 +408,8 @@ diff -Naur a/kernel/conftest.sh b/kernel/conftest.sh
          sg_table)
              #
              # Determine if the struct sg_table type is present.
-@@ -1795,15 +1908,35 @@
- 
-         pde_data)
+@@ -1815,6 +1928,9 @@
              #
-+            # Determine if the pde_data() function is present.
-+            #
-+            # The commit c28198889c15 removed the function
-+            # 'PDE_DATA()', and replaced it with 'pde_data()'
-+            # ("proc: remove PDE_DATA() completely") in v5.17-rc1.
-+            #
-+            CODE="
-+            #include <linux/proc_fs.h>
-+            void conftest_pde_data(void) {
-+                pde_data();
-+            }"
-+
-+            compile_check_conftest "$CODE" "NV_PDE_DATA_PRESENT" "" "functions"
-+        ;;
-+
-+        PDE_DATA)
-+            #
              # Determine if the PDE_DATA() function is present.
              #
 +            # Added by commit d9dda78bad87
@@ -409,15 +418,7 @@ diff -Naur a/kernel/conftest.sh b/kernel/conftest.sh
              CODE="
              #include <linux/proc_fs.h>
              void conftest_PDE_DATA(void) {
-                 PDE_DATA();
-             }"
- 
--            compile_check_conftest "$CODE" "NV_PDE_DATA_PRESENT" "" "functions"
-+            compile_check_conftest "$CODE" "NV_PDE_DATA_UPPER_CASE_PRESENT" "" "functions"
-         ;;
- 
-         get_num_physpages)
-@@ -2034,6 +2167,21 @@
+@@ -2052,6 +2168,21 @@
              compile_check_conftest "$CODE" "NV_FILE_HAS_INODE" "" "types"
          ;;
  
@@ -439,7 +440,7 @@ diff -Naur a/kernel/conftest.sh b/kernel/conftest.sh
          xen_ioemu_inject_msi)
              #
              # Determine if the xen_ioemu_inject_msi() function is present.
-@@ -3411,6 +3559,64 @@
+@@ -3429,6 +3560,64 @@
              compile_check_conftest "$CODE" "NV_DRM_DRIVER_UNLOAD_HAS_INT_RETURN_TYPE" "" "types"
          ;;
  
@@ -504,7 +505,7 @@ diff -Naur a/kernel/conftest.sh b/kernel/conftest.sh
          kref_has_refcount_of_type_refcount_t)
              CODE="
              #include <linux/kref.h>
-@@ -3963,6 +4169,30 @@
+@@ -3981,6 +4170,30 @@
              compile_check_conftest "$CODE" "NV_DMA_IS_DIRECT_PRESENT" "" "functions"
          ;;
  
@@ -536,8 +537,8 @@ diff -Naur a/kernel/conftest.sh b/kernel/conftest.sh
              #
              # Determine whether driver feature flag DRIVER_PRIME is present.
 diff -Naur a/kernel/dkms.conf b/kernel/dkms.conf
---- a/kernel/dkms.conf	2022-01-21 18:37:49.976268255 +0100
-+++ b/kernel/dkms.conf	2022-01-21 18:38:55.084844167 +0100
+--- a/kernel/dkms.conf	2022-06-05 13:18:33.908572764 +0200
++++ b/kernel/dkms.conf	2022-06-05 13:19:33.730279003 +0200
 @@ -1,7 +1,13 @@
 +if [ -x /usr/bin/nproc ]; then
 +  num_cpu_cores=$(nproc)
@@ -554,8 +555,8 @@ diff -Naur a/kernel/dkms.conf b/kernel/dkms.conf
  CLEAN="make clean"
  AUTOINSTALL="yes"
 diff -Naur a/kernel/Makefile b/kernel/Makefile
---- a/kernel/Makefile	2022-01-21 18:37:49.975268277 +0100
-+++ b/kernel/Makefile	2022-01-21 18:38:55.073844408 +0100
+--- a/kernel/Makefile	2022-06-05 13:18:33.904572851 +0200
++++ b/kernel/Makefile	2022-06-05 13:19:33.725279111 +0200
 @@ -70,11 +70,11 @@
   MODULE_GLUE_OBJS := $(patsubst %.c,%.o,nv-frontend.c)
   $(MODULE_NAME)-objs := $(MODULE_GLUE_OBJS)
@@ -587,9 +588,66 @@ diff -Naur a/kernel/Makefile b/kernel/Makefile
  
  #
  # Generate multiple targets at runtime depending on the items present in
+diff -Naur a/kernel/nv-acpi.c b/kernel/nv-acpi.c
+--- a/kernel/nv-acpi.c	2022-06-05 13:18:33.909572743 +0200
++++ b/kernel/nv-acpi.c	2022-06-05 13:19:33.732278960 +0200
+@@ -556,9 +556,11 @@
+ 
+ void NV_API_CALL nv_acpi_methods_init(NvU32 *handlesPresent)
+ {
++#if defined(NV_ACPI_BUS_GET_DEVICE_PRESENT)
+     struct acpi_device *device = NULL;
+     RM_STATUS rmStatus;
+     int retVal = -1;
++#endif
+ 
+ 
+     if (!handlesPresent) // Caller passed us invalid pointer.
+@@ -570,6 +572,7 @@
+     NV_ACPI_WALK_NAMESPACE(ACPI_TYPE_DEVICE, ACPI_ROOT_OBJECT,
+                         ACPI_UINT32_MAX, nv_acpi_find_methods, NULL, NULL);
+ 
++#if defined(NV_ACPI_BUS_GET_DEVICE_PRESENT)
+     if (nvif_handle)
+     {
+         *handlesPresent = NV_ACPI_NVIF_HANDLE_PRESENT;
+@@ -596,6 +599,7 @@
+ 
+         } while (0);
+     }
++#endif
+ 
+     if (wmmx_handle)
+         *handlesPresent = *handlesPresent | NV_ACPI_WMMX_HANDLE_PRESENT;
+@@ -651,10 +655,12 @@
+ 
+     if (nvif_parent_gpu_handle == NULL) 
+         return;
+-
++#if defined(NV_ACPI_BUS_GET_DEVICE_PRESENT)
+     acpi_bus_get_device(nvif_parent_gpu_handle, &device);
+ 
+     nv_uninstall_notifier(device, nv_acpi_event);
++#endif
++
+     nvif_parent_gpu_handle = NULL;
+ 
+     return;
+@@ -1212,7 +1218,11 @@
+     if (!dev_handle)
+         return RM_ERR_INVALID_ARGUMENT;
+ 
++#if defined(NV_ACPI_BUS_GET_DEVICE_PRESENT)
+     status = acpi_bus_get_device(dev_handle, &device);
++#else
++    return RM_ERR_NOT_SUPPORTED;
++#endif
+ 
+     if (ACPI_FAILURE(status) || !device)
+         return RM_ERR_INVALID_ARGUMENT;
 diff -Naur a/kernel/nv.c b/kernel/nv.c
---- a/kernel/nv.c	2022-01-21 18:37:49.981268146 +0100
-+++ b/kernel/nv.c	2022-01-21 18:38:55.104843730 +0100
+--- a/kernel/nv.c	2022-06-05 13:18:33.917572570 +0200
++++ b/kernel/nv.c	2022-06-05 13:19:33.743278722 +0200
 @@ -752,7 +752,7 @@
      NV_SPIN_LOCK_INIT(&km_lock);
  #endif
@@ -611,9 +669,44 @@ diff -Naur a/kernel/nv.c b/kernel/nv.c
  #endif
      vga_set_legacy_decoding(dev, VGA_RSRC_NONE);
  #endif
+diff -Naur a/kernel/nv-dma.c b/kernel/nv-dma.c
+--- a/kernel/nv-dma.c	2022-06-05 13:18:33.909572743 +0200
++++ b/kernel/nv-dma.c	2022-06-05 13:19:33.732278960 +0200
+@@ -136,10 +136,17 @@
+         return status;
+     }
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 18, 0)
++    dma_map->sg_map_count = dma_map_sg(&dma_map->dev->dev,
++            NV_DMA_MAP_SCATTERLIST(dma_map),
++            NV_DMA_MAP_SCATTERLIST_LENGTH(dma_map),
++            DMA_BIDIRECTIONAL);
++#else
+     dma_map->sg_map_count = pci_map_sg(dma_map->dev,
+             NV_DMA_MAP_SCATTERLIST(dma_map),
+             NV_DMA_MAP_SCATTERLIST_LENGTH(dma_map),
+             PCI_DMA_BIDIRECTIONAL);
++#endif
+     if (dma_map->sg_map_count == 0)
+     {
+         nv_printf(NV_DBG_ERRORS,
+@@ -211,8 +218,13 @@
+ 
+     if (dma_map->sg_map_count != 0)
+     {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 18, 0)
++        dma_unmap_sg(&dma_map->dev->dev, NV_DMA_MAP_SCATTERLIST(dma_map),
++                NV_DMA_MAP_SCATTERLIST_LENGTH(dma_map), DMA_BIDIRECTIONAL);
++#else
+         pci_unmap_sg(dma_map->dev, NV_DMA_MAP_SCATTERLIST(dma_map),
+                 NV_DMA_MAP_SCATTERLIST_LENGTH(dma_map), PCI_DMA_BIDIRECTIONAL);
++#endif
+     }
+ 
+     *priv = dma_map->user_pages;
 diff -Naur a/kernel/nv-drm.c b/kernel/nv-drm.c
---- a/kernel/nv-drm.c	2022-01-21 18:37:49.977268233 +0100
-+++ b/kernel/nv-drm.c	2022-01-21 18:38:55.086844123 +0100
+--- a/kernel/nv-drm.c	2022-06-05 13:18:33.910572721 +0200
++++ b/kernel/nv-drm.c	2022-06-05 13:19:33.733278938 +0200
 @@ -23,6 +23,11 @@
  #include <linux/file.h>
  #endif
@@ -1082,9 +1175,29 @@ diff -Naur a/kernel/nv-drm.c b/kernel/nv-drm.c
      drm_gem_object_unreference_unlocked(&nv_obj->base);
  #endif
  
+diff -Naur a/kernel/nv-frontend.c b/kernel/nv-frontend.c
+--- a/kernel/nv-frontend.c	2022-06-05 13:18:33.910572721 +0200
++++ b/kernel/nv-frontend.c	2022-06-05 13:19:33.734278916 +0200
+@@ -8,6 +8,7 @@
+  * _NVRM_COPYRIGHT_END_
+  */
+ 
++#include "conftest.h"
+ #include "nv-misc.h"
+ #include "os-interface.h"
+ #include "nv-linux.h"
+@@ -377,7 +378,7 @@
+ #if (NV_BUILD_MODULE_INSTANCES != 0)
+ #if defined(CONFIG_PROC_FS)
+     if ((nv_num_instances == 0) && (nv_proc_topdir != NULL))
+-        NV_REMOVE_PROCE_ENTRY(nv_proc_topdir);
++        NV_REMOVE_PROC_ENTRY(nv_proc_topdir);
+ #endif
+ #else
+     nvidia_exit_module();
 diff -Naur a/kernel/nv.h b/kernel/nv.h
---- a/kernel/nv.h	2022-01-21 18:37:49.981268146 +0100
-+++ b/kernel/nv.h	2022-01-21 18:38:55.106843686 +0100
+--- a/kernel/nv.h	2022-06-05 13:18:33.918572548 +0200
++++ b/kernel/nv.h	2022-06-05 13:19:33.745278678 +0200
 @@ -13,7 +13,7 @@
  #define _NV_H_
  
@@ -1095,8 +1208,8 @@ diff -Naur a/kernel/nv.h b/kernel/nv.h
  #if !defined(NV_MIN)
  #define NV_MIN(_a,_b) ((_a) < (_b) ? (_a) : (_b))
 diff -Naur a/kernel/nvidia-drm-gem.c b/kernel/nvidia-drm-gem.c
---- a/kernel/nvidia-drm-gem.c	2022-01-21 18:37:50.025267183 +0100
-+++ b/kernel/nvidia-drm-gem.c	2022-01-21 18:38:55.109843620 +0100
+--- a/kernel/nvidia-drm-gem.c	2022-06-05 13:18:33.953571791 +0200
++++ b/kernel/nvidia-drm-gem.c	2022-06-05 13:19:33.746278657 +0200
 @@ -26,10 +26,10 @@
  
  #include "nvidia-drm-priv.h"
@@ -1110,7 +1223,7 @@ diff -Naur a/kernel/nvidia-drm-gem.c b/kernel/nvidia-drm-gem.c
  
  #if defined(NV_DRM_DRM_PRIME_H_PRESENT)
  #include <drm/drm_prime.h>
-@@ -88,9 +88,9 @@
+@@ -99,9 +99,9 @@
      .vunmap  = nv_drm_gem_prime_vunmap,
  #endif
  
@@ -1124,8 +1237,8 @@ diff -Naur a/kernel/nvidia-drm-gem.c b/kernel/nvidia-drm-gem.c
  #endif
  };
 diff -Naur a/kernel/nvidia-drm-linux.c b/kernel/nvidia-drm-linux.c
---- a/kernel/nvidia-drm-linux.c	2022-01-21 18:37:50.027267140 +0100
-+++ b/kernel/nvidia-drm-linux.c	2022-01-21 18:38:55.111843577 +0100
+--- a/kernel/nvidia-drm-linux.c	2022-06-05 13:18:33.955571748 +0200
++++ b/kernel/nvidia-drm-linux.c	2022-06-05 13:19:33.748278614 +0200
 @@ -25,7 +25,6 @@
  #include <linux/err.h>
  
@@ -1161,17 +1274,22 @@ diff -Naur a/kernel/nvidia-drm-linux.c b/kernel/nvidia-drm-linux.c
 -  MODULE_VERSION(NV_VERSION_STRING);
 -#endif
 diff -Naur a/kernel/nvidia-modules-common.mk b/kernel/nvidia-modules-common.mk
---- a/kernel/nvidia-modules-common.mk	2022-01-21 18:37:49.982268124 +0100
-+++ b/kernel/nvidia-modules-common.mk	2022-01-21 18:38:55.112843555 +0100
-@@ -149,7 +149,7 @@
+--- a/kernel/nvidia-modules-common.mk	2022-06-05 13:18:33.918572548 +0200
++++ b/kernel/nvidia-modules-common.mk	2022-06-05 13:19:33.749278592 +0200
+@@ -149,10 +149,10 @@
  CONFTEST_HEADERS := $(obj)/conftest.h $(CONFTEST_COMPILE_TEST_HEADERS) \
  $(obj)/conftest/patches.h
  
 -$(obj)/conftest.h $(CONFTEST_COMPILE_TEST_HEADERS): conftest-compile-test
 +# $(obj)/conftest.h $(CONFTEST_COMPILE_TEST_HEADERS): conftest-compile-test
  
- conftest-compile-test: $(src)/conftest.sh
- 	@if ! $(CONFTEST) compile_tests $(COMPILE_TESTS); then exit 1; fi
+-conftest-compile-test: $(src)/conftest.sh
+-	@if ! $(CONFTEST) compile_tests $(COMPILE_TESTS); then exit 1; fi
++# conftest-compile-test: $(src)/conftest.sh
++# 	@if ! $(CONFTEST) compile_tests $(COMPILE_TESTS); then exit 1; fi
+ 
+ $(obj)/conftest/patches.h:
+ 	@if ! $(CONFTEST) patch_check; then exit 1; fi
 @@ -222,6 +222,7 @@
  define BUILD_MODULE_RULE
   $(1): build-sanity-checks $(3)
@@ -1190,8 +1308,8 @@ diff -Naur a/kernel/nvidia-modules-common.mk b/kernel/nvidia-modules-common.mk
  	@$(RM) -rf Module*.symvers .tmp_versions modules.order
  
 diff -Naur a/kernel/nv-linux.h b/kernel/nv-linux.h
---- a/kernel/nv-linux.h	2022-04-03 09:53:53.350898400 +0200
-+++ b/kernel/nv-linux.h	2022-04-03 09:54:09.795517366 +0200
+--- a/kernel/nv-linux.h	2022-06-05 13:18:33.912572678 +0200
++++ b/kernel/nv-linux.h	2022-06-05 13:19:33.736278873 +0200
 @@ -119,12 +119,15 @@
  #include <asm/tlbflush.h>           /* flush_tlb(), flush_tlb_all()     */
  #include <linux/cpu.h>              /* CPU hotplug support              */
@@ -1359,24 +1477,167 @@ diff -Naur a/kernel/nv-linux.h b/kernel/nv-linux.h
  
  #endif  /* CONFIG_PROC_FS */
  
-@@ -2187,9 +2250,13 @@
-                 flags |= FOLL_FORCE;
+@@ -2075,157 +2138,4 @@
+ #endif
+ }
  
-         #if defined(NV_GET_USER_PAGES_REMOTE_HAS_LOCKED_ARG)
+-/* get_user_pages
+- *
+- * The 8-argument version of get_user_pages was deprecated by commit 
+- * (2016 Feb 12: cde70140fed8429acf7a14e2e2cbd3e329036653)for the non-remote case 
+- * (calling get_user_pages with current and current->mm).
+- *
+- * Completely moved to the 6 argument version of get_user_pages -
+- * 2016 Apr 4: c12d2da56d0e07d230968ee2305aaa86b93a6832
+- *
+- * write and force parameters were replaced with gup_flags by - 
+- * 2016 Oct 12: 768ae309a96103ed02eb1e111e838c87854d8b51
+- *
+- * A 7-argument version of get_user_pages was introduced into linux-4.4.y by
+- * commit 8e50b8b07f462ab4b91bc1491b1c91bd75e4ad40 which cherry-pciked the
+- * replacement of the write and force parameters with gup_flags
+- *
+- */
 -
-+            #if defined (NV_GET_USER_PAGES_REMOTE_HAS_TSK_ARG)
-                return get_user_pages_remote(tsk, mm, start, nr_pages, flags,
-                                             pages, vmas, NULL);
-+            #else
-+               return get_user_pages_remote(mm, start, nr_pages, flags,
-+                                            pages, vmas, NULL);
-+            #endif
- 
-         #else
- 
+-#if defined(NV_GET_USER_PAGES_HAS_TASK_STRUCT)
+-    #if defined(NV_GET_USER_PAGES_HAS_WRITE_AND_FORCE_ARGS)
+-        #define NV_GET_USER_PAGES(start, nr_pages, write, force, pages, vmas) \
+-            get_user_pages(current, current->mm, start, nr_pages, write, force, pages, vmas)
+-    #else
+-        #include <linux/mm.h>
+-        #include <linux/sched.h>
+-
+-        static inline long NV_GET_USER_PAGES(unsigned long start,
+-                                             unsigned long nr_pages,
+-                                             int write,
+-                                             int force,
+-                                             struct page **pages,
+-                                             struct vm_area_struct **vmas)
+-        {
+-            unsigned int flags = 0;
+-
+-            if (write)
+-                flags |= FOLL_WRITE;
+-            if (force)
+-                flags |= FOLL_FORCE;
+-
+-            return get_user_pages(current, current->mm, start, nr_pages, flags,
+-                                  pages, vmas);
+-        }
+-
+-    #endif
+-#else
+-    #if defined(NV_GET_USER_PAGES_HAS_WRITE_AND_FORCE_ARGS)
+-        #define NV_GET_USER_PAGES get_user_pages
+-    #else
+-        #include <linux/mm.h>
+-
+-        static inline long NV_GET_USER_PAGES(unsigned long start,
+-                                             unsigned long nr_pages,
+-                                             int write,
+-                                             int force,
+-                                             struct page **pages,
+-                                             struct vm_area_struct **vmas)
+-        {
+-            unsigned int flags = 0;
+-
+-            if (write)
+-                flags |= FOLL_WRITE;
+-            if (force)
+-                flags |= FOLL_FORCE;
+-
+-            return get_user_pages(start, nr_pages, flags, pages, vmas);
+-        }
+-    #endif
+-#endif
+-
+-/* get_user_pages_remote() was added by:
+- *   2016 Feb 12: 1e9877902dc7e11d2be038371c6fbf2dfcd469d7
+- *
+- * The very next commit (cde70140fed8429acf7a14e2e2cbd3e329036653)
+- * deprecated the 8-argument version of get_user_pages for the
+- * non-remote case (calling get_user_pages with current and current->mm).
+- *
+- * The guidelines are: call NV_GET_USER_PAGES_REMOTE if you need the 8-argument
+- * version that uses something other than current and current->mm. Use
+- * NV_GET_USER_PAGES if you are refering to current and current->mm.
+- *
+- * Note that get_user_pages_remote() requires the caller to hold a reference on
+- * the task_struct (if non-NULL) and the mm_struct. This will always be true
+- * when using current and current->mm. If the kernel passes the driver a vma
+- * via driver callback, the kernel holds a reference on vma->vm_mm over that
+- * callback.
+- *
+- * get_user_pages_remote() added 'locked' parameter
+- *   2016 Dec 14:5b56d49fc31dbb0487e14ead790fc81ca9fb2c99
+- */
+-
+-#if defined(NV_GET_USER_PAGES_REMOTE_PRESENT)
+-    #if defined (NV_GET_USER_PAGES_REMOTE_HAS_WRITE_AND_FORCE_ARGS)
+-        #define NV_GET_USER_PAGES_REMOTE get_user_pages_remote
+-    #else
+-        static inline long NV_GET_USER_PAGES_REMOTE(struct task_struct *tsk,
+-                                                    struct mm_struct *mm,
+-                                                    unsigned long start,
+-                                                    unsigned long nr_pages,
+-                                                    int write,
+-                                                    int force,
+-                                                    struct page **pages,
+-                                                    struct vm_area_struct **vmas)
+-        {
+-            unsigned int flags = 0;
+-
+-            if (write)
+-                flags |= FOLL_WRITE;
+-            if (force)
+-                flags |= FOLL_FORCE;
+-
+-        #if defined(NV_GET_USER_PAGES_REMOTE_HAS_LOCKED_ARG)
+-
+-               return get_user_pages_remote(tsk, mm, start, nr_pages, flags,
+-                                            pages, vmas, NULL);
+-
+-        #else
+-
+-               return get_user_pages_remote(tsk, mm, start, nr_pages, flags,
+-                                            pages, vmas);
+-
+-        #endif
+-
+-        }
+-    #endif
+-#else
+-    #if defined(NV_GET_USER_PAGES_HAS_WRITE_AND_FORCE_ARGS)
+-        #define NV_GET_USER_PAGES_REMOTE    NV_GET_USER_PAGES
+-    #else
+-        #include <linux/mm.h>
+-        #include <linux/sched.h>
+-
+-        static inline long NV_GET_USER_PAGES_REMOTE(struct task_struct *tsk,
+-                                                    struct mm_struct *mm,
+-                                                    unsigned long start,
+-                                                    unsigned long nr_pages,
+-                                                    int write,
+-                                                    int force,
+-                                                    struct page **pages,
+-                                                    struct vm_area_struct **vmas)
+-        {
+-            unsigned int flags = 0;
+-
+-            if (write)
+-                flags |= FOLL_WRITE;
+-            if (force)
+-                flags |= FOLL_FORCE;
+-
+-            return get_user_pages(tsk, mm, start, nr_pages, flags, pages, vmas);
+-        }
+-    #endif
+-#endif
+-
+ #endif  /* _NV_LINUX_H_ */
 diff -Naur a/kernel/nv-procfs.c b/kernel/nv-procfs.c
---- a/kernel/nv-procfs.c	2022-01-21 18:37:49.978268211 +0100
-+++ b/kernel/nv-procfs.c	2022-01-21 18:38:55.095843926 +0100
+--- a/kernel/nv-procfs.c	2022-06-05 13:18:33.913572656 +0200
++++ b/kernel/nv-procfs.c	2022-06-05 13:19:33.737278851 +0200
 @@ -409,6 +409,15 @@
      return ((status < 0) ? status : (int)count);
  }
@@ -1426,8 +1687,8 @@ diff -Naur a/kernel/nv-procfs.c b/kernel/nv-procfs.c
  static int
  nv_procfs_read_text_file(
 diff -Naur a/kernel/nv-vm.c b/kernel/nv-vm.c
---- a/kernel/nv-vm.c	2022-01-21 18:37:49.979268189 +0100
-+++ b/kernel/nv-vm.c	2022-01-21 18:38:55.097843883 +0100
+--- a/kernel/nv-vm.c	2022-06-05 13:18:33.914572634 +0200
++++ b/kernel/nv-vm.c	2022-06-05 13:19:33.739278808 +0200
 @@ -12,6 +12,9 @@
  #include "os-interface.h"
  #include "nv.h"
@@ -1438,9 +1699,30 @@ diff -Naur a/kernel/nv-vm.c b/kernel/nv-vm.c
  
  static inline void nv_set_contig_memory_uc(nv_pte_t *page_ptr, NvU32 num_pages)
  {
+@@ -169,12 +172,20 @@
+ 
+ static inline int nv_map_sg(struct pci_dev *dev, struct scatterlist *sg)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 18, 0)
++    return dma_map_sg(&dev->dev, sg, 1, DMA_BIDIRECTIONAL);
++#else
+     return pci_map_sg(dev, sg, 1, PCI_DMA_BIDIRECTIONAL);
++#endif
+ }
+ 
+ static inline void nv_unmap_sg(struct pci_dev *dev, struct scatterlist *sg)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 18, 0)
++    dma_unmap_sg(&dev->dev, sg, 1, DMA_BIDIRECTIONAL);
++#else
+     pci_unmap_sg(dev, sg, 1, PCI_DMA_BIDIRECTIONAL);
++#endif
+ }
+ 
+ #define NV_MAP_SG_MAX_RETRIES 16
 diff -Naur a/kernel/os-interface.c b/kernel/os-interface.c
---- a/kernel/os-interface.c	2022-01-21 18:37:49.982268124 +0100
-+++ b/kernel/os-interface.c	2022-01-21 18:38:55.115843489 +0100
+--- a/kernel/os-interface.c	2022-06-05 13:18:33.919572526 +0200
++++ b/kernel/os-interface.c	2022-06-05 13:19:33.751278549 +0200
 @@ -439,7 +439,7 @@
      NvU32 *useconds
  )
@@ -1481,8 +1763,8 @@ diff -Naur a/kernel/os-interface.c b/kernel/os-interface.c
          {
              schedule_timeout(jiffies);
 diff -Naur a/kernel/os-interface.h b/kernel/os-interface.h
---- a/kernel/os-interface.h	2022-01-21 18:37:49.982268124 +0100
-+++ b/kernel/os-interface.h	2022-01-21 18:38:55.116843467 +0100
+--- a/kernel/os-interface.h	2022-06-05 13:18:33.920572505 +0200
++++ b/kernel/os-interface.h	2022-06-05 13:19:33.752278527 +0200
 @@ -24,7 +24,7 @@
  *                                                                           *
  \***************************************************************************/
@@ -1493,31 +1775,33 @@ diff -Naur a/kernel/os-interface.h b/kernel/os-interface.h
  /*
   * Define away Microsoft compiler extensions when possible
 diff -Naur a/kernel/os-mlock.c b/kernel/os-mlock.c
---- a/kernel/os-mlock.c	2022-01-21 18:37:49.983268102 +0100
-+++ b/kernel/os-mlock.c	2022-01-21 18:38:55.117843445 +0100
-@@ -44,11 +44,19 @@
+--- a/kernel/os-mlock.c	2022-06-05 13:18:33.921572483 +0200
++++ b/kernel/os-mlock.c	2022-06-05 13:19:33.753278505 +0200
+@@ -14,6 +14,8 @@
+ #include "os-interface.h"
+ #include "nv-linux.h"
+ 
++#include "nv-mm.h"
++
+ RM_STATUS NV_API_CALL os_lock_user_pages(
+     void   *address,
+     NvU64   page_count,
+@@ -44,10 +46,10 @@
          return rmStatus;
      }
  
-+#if defined(NV_MM_HAS_MMAP_LOCK)
-+    down_read(&mm->mmap_lock);
-+    ret = NV_GET_USER_PAGES((unsigned long)address,
-+                            page_count, write, force, user_pages, NULL);
-+    up_read(&mm->mmap_lock);
-+    pinned = ret;
-+#else
-     down_read(&mm->mmap_sem);
+-    down_read(&mm->mmap_sem);
++    nv_mmap_read_lock(mm);
      ret = NV_GET_USER_PAGES((unsigned long)address,
                              page_count, write, force, user_pages, NULL);
-     up_read(&mm->mmap_sem);
+-    up_read(&mm->mmap_sem);
++    nv_mmap_read_unlock(mm);
      pinned = ret;
-+#endif
  
      if (ret < 0)
-     {
 diff -Naur a/kernel/uvm/conftest.sh b/kernel/uvm/conftest.sh
---- a/kernel/uvm/conftest.sh	2022-01-21 18:37:49.984268080 +0100
-+++ b/kernel/uvm/conftest.sh	2022-01-21 18:38:55.119843402 +0100
+--- a/kernel/uvm/conftest.sh	2022-06-05 13:18:33.922572461 +0200
++++ b/kernel/uvm/conftest.sh	2022-06-05 13:19:33.756278441 +0200
 @@ -176,6 +176,7 @@
      FILES="$FILES linux/ktime.h"
      FILES="$FILES linux/file.h"
@@ -1537,8 +1821,8 @@ diff -Naur a/kernel/uvm/conftest.sh b/kernel/uvm/conftest.sh
              #include <asm/set_memory.h>
              #else
 diff -Naur a/kernel/uvm/Makefile b/kernel/uvm/Makefile
---- a/kernel/uvm/Makefile	2022-01-21 18:37:49.983268102 +0100
-+++ b/kernel/uvm/Makefile	2022-01-21 18:38:55.117843445 +0100
+--- a/kernel/uvm/Makefile	2022-06-05 13:18:33.921572483 +0200
++++ b/kernel/uvm/Makefile	2022-06-05 13:19:33.754278484 +0200
 @@ -207,6 +207,7 @@
  
  RM_MODULE_SYMVERS:= $(RM_OUT_DIR)/Module.symvers
@@ -1548,8 +1832,8 @@ diff -Naur a/kernel/uvm/Makefile b/kernel/uvm/Makefile
  module $(MODULE_NAME).ko: $(UVM_MODULE_SYMVERS) debug_diagnostics_printing
  
 diff -Naur a/kernel/uvm/nvidia_uvm_linux.h b/kernel/uvm/nvidia_uvm_linux.h
---- a/kernel/uvm/nvidia_uvm_linux.h	2022-01-21 18:37:49.985268058 +0100
-+++ b/kernel/uvm/nvidia_uvm_linux.h	2022-01-21 18:38:55.120843380 +0100
+--- a/kernel/uvm/nvidia_uvm_linux.h	2022-06-05 13:18:33.922572461 +0200
++++ b/kernel/uvm/nvidia_uvm_linux.h	2022-06-05 13:19:33.757278419 +0200
 @@ -141,7 +141,9 @@
  #if !defined(NV_VMWARE)
  #include <asm/tlbflush.h>           /* flush_tlb(), flush_tlb_all()     */
@@ -1571,9 +1855,9 @@ diff -Naur a/kernel/uvm/nvidia_uvm_linux.h b/kernel/uvm/nvidia_uvm_linux.h
  #include <linux/ioctl32.h>          /* register_ioctl32_conversion()    */
  #endif
 diff -Naur a/kernel/uvm/nvidia_uvm_lite_api.c b/kernel/uvm/nvidia_uvm_lite_api.c
---- a/kernel/uvm/nvidia_uvm_lite_api.c	2022-01-21 18:37:49.986268036 +0100
-+++ b/kernel/uvm/nvidia_uvm_lite_api.c	2022-01-21 18:38:55.121843358 +0100
-@@ -30,6 +30,10 @@
+--- a/kernel/uvm/nvidia_uvm_lite_api.c	2022-06-05 13:18:33.924572418 +0200
++++ b/kernel/uvm/nvidia_uvm_lite_api.c	2022-06-05 13:19:33.760278354 +0200
+@@ -30,6 +30,12 @@
  #include "uvm_gpu_ops_tests.h"
  #endif
  
@@ -1581,20 +1865,160 @@ diff -Naur a/kernel/uvm/nvidia_uvm_lite_api.c b/kernel/uvm/nvidia_uvm_lite_api.c
 +#define mmap_sem mmap_lock
 +#endif
 +
++#include "nv-mm.h"
++
  //
  // nvidia_uvm_lite_api.c
  //
+@@ -161,13 +167,13 @@
+         return RM_ERR_NOT_SUPPORTED;
+     }
+ 
+-    down_write(&current->mm->mmap_sem);
++    nv_mmap_write_lock(current->mm);
+ 
+     vma = find_uvmlite_vma(pParams->requestedBase, pParams->length, filp);
+ 
+     if (!vma)
+     {
+-        up_write(&current->mm->mmap_sem);
++        nv_mmap_write_unlock(current->mm);
+         UVM_ERR_PRINT("Failed to find the vma (base: 0x%llx, length: %llu\n",
+                       pParams->requestedBase, pParams->length);
+         return RM_ERR_UVM_ADDRESS_IN_USE;
+@@ -178,7 +184,7 @@
+ 
+     if (!pRecord)
+     {
+-        up_write(&current->mm->mmap_sem);
++        nv_mmap_write_unlock(current->mm);
+         UVM_ERR_PRINT("attempted to commit region without a preceding mmap() "
+                       "call\n");
+         return RM_ERR_OBJECT_NOT_FOUND;
+@@ -187,7 +193,7 @@
+     if ((pRecord->baseAddress != pParams->requestedBase) ||
+         (PAGE_ALIGN(pRecord->length) != PAGE_ALIGN(pParams->length)))
+     {
+-        up_write(&current->mm->mmap_sem);
++        nv_mmap_write_unlock(current->mm);
+         UVM_ERR_PRINT("attempted to commit region with different VA or length"
+                       " than used by preceding mmap\n");
+         return RM_ERR_UVM_ADDRESS_IN_USE;
+@@ -206,7 +212,7 @@
+     }
+ 
+     up_write(&pPriv->uvmPrivLock);
+-    up_write(&current->mm->mmap_sem);
++    nv_mmap_write_unlock(current->mm);
+ 
+     return rmStatus;
+ }
+@@ -235,12 +241,12 @@
+                      pParams->requestedBase, pParams->length,
+                      pParams->newStreamId);
+ 
+-    down_write(&current->mm->mmap_sem);
++    nv_mmap_write_lock(current->mm);
+ 
+     vma = find_uvmlite_vma(pParams->requestedBase, pParams->length, filp);
+     if (vma == NULL)
+     {
+-        up_write(&current->mm->mmap_sem);
++        nv_mmap_write_unlock(current->mm);
+         return RM_ERR_UVM_ADDRESS_IN_USE;
+     }
+ 
+@@ -250,7 +256,7 @@
+     rmStatus = uvmlite_region_set_stream(pRecord, pParams->newStreamId);
+ 
+     up_write(&pPriv->uvmPrivLock);
+-    up_write(&current->mm->mmap_sem);
++    nv_mmap_write_unlock(current->mm);
+ 
+     return rmStatus;
+ }
+@@ -264,11 +270,11 @@
+ 
+     UVM_DBG_PRINT_RL("streamID: 0x%llx\n", pParams->streamId);
+ 
+-    down_write(&current->mm->mmap_sem);
++    nv_mmap_write_lock(current->mm);
+     down_write(&pPriv->uvmPrivLock);
+     rmStatus = uvmlite_set_stream_running(pPriv, pParams->streamId);
+     up_write(&pPriv->uvmPrivLock);
+-    up_write(&current->mm->mmap_sem);
++    nv_mmap_write_unlock(current->mm);
+ 
+     return rmStatus;
+ }
+@@ -290,12 +296,12 @@
+                          pParams->streamIdArray[pParams->nStreams - 1]);
+     }
+ 
+-    down_write(&current->mm->mmap_sem);
++    nv_mmap_write_lock(current->mm);
+     down_write(&pPriv->uvmPrivLock);
+     rmStatus = uvmlite_set_streams_stopped(pPriv, pParams->streamIdArray,
+                                            pParams->nStreams);
+     up_write(&pPriv->uvmPrivLock);
+-    up_write(&current->mm->mmap_sem);
++    nv_mmap_write_unlock(current->mm);
+     return rmStatus;
+ }
+ 
+@@ -311,12 +317,12 @@
+                      "flags: 0x%x\n",
+                      pParams->requestedBase, pParams->length, pParams->flags);
+ 
+-    down_write(&current->mm->mmap_sem);
++    nv_mmap_write_lock(current->mm);
+ 
+     vma = find_uvmlite_vma(pParams->requestedBase, pParams->length, filp);
+     if (vma == NULL)
+     {
+-        up_write(&current->mm->mmap_sem);
++        nv_mmap_write_unlock(current->mm);
+         return RM_ERR_UVM_ADDRESS_IN_USE;
+     }
+ 
+@@ -329,7 +335,7 @@
+                                        vma,
+                                        pRecord);
+     up_write(&pPriv->uvmPrivLock);
+-    up_write(&current->mm->mmap_sem);
++    nv_mmap_write_unlock(current->mm);
+ 
+     return rmStatus;
+ }
+@@ -385,7 +391,7 @@
+         return rmStatus;
+     }
+ 
+-    down_write(&current->mm->mmap_sem);
++    nv_mmap_write_lock(current->mm);
+     rmStatus = RM_ERR_INVALID_ARGUMENT; 
+     vma = find_counters_vma((unsigned long long) countersBaseAddress, 
+                             UVM_MAX_GPUS * UVM_PER_RESOURCE_COUNTERS_SIZE +
+@@ -416,7 +422,7 @@
+         }
+     }
+ 
+-    up_write(&current->mm->mmap_sem);
++    nv_mmap_write_unlock(current->mm);
+ 
+     // 
+     // We can not reverse uvm_map_page, so inserted pages will stay
 diff -Naur a/kernel/uvm/nvidia_uvm_lite.c b/kernel/uvm/nvidia_uvm_lite.c
---- a/kernel/uvm/nvidia_uvm_lite.c	2022-01-21 18:37:49.986268036 +0100
-+++ b/kernel/uvm/nvidia_uvm_lite.c	2022-01-21 18:38:55.121843358 +0100
+--- a/kernel/uvm/nvidia_uvm_lite.c	2022-06-05 13:18:33.924572418 +0200
++++ b/kernel/uvm/nvidia_uvm_lite.c	2022-06-05 13:19:33.759278376 +0200
 @@ -131,8 +131,8 @@
  RM_STATUS _preexisting_error_on_channel(UvmGpuMigrationTracking *pMigTracker,
                                           UvmCommitRecord *pRecord);
  
 -static void _set_timeout_in_usec(struct timeval *src,
 -                                 struct timeval *result,
-+static void _set_timeout_in_usec(struct nv_timeval *src,
-+                                 struct nv_timeval *result,
++static void _set_timeout_in_usec(nv_timeval *src,
++                                 nv_timeval *result,
                                   unsigned long timeoutInUsec)
  {
      if (!src || !result)
@@ -1649,9 +2073,9 @@ diff -Naur a/kernel/uvm/nvidia_uvm_lite.c b/kernel/uvm/nvidia_uvm_lite.c
 -    struct timeval eccErrorStartTime = {0};
 -    struct timeval eccErrorCurrentTime = {0};
 -    struct timeval eccTimeout = {0};
-+    struct nv_timeval eccErrorStartTime = {0};
-+    struct nv_timeval eccErrorCurrentTime = {0};
-+    struct nv_timeval eccTimeout = {0};
++    nv_timeval eccErrorStartTime = {0};
++    nv_timeval eccErrorCurrentTime = {0};
++    nv_timeval eccTimeout = {0};
      NvBool bEccErrorTimeout = NV_FALSE;
      NvBool bEccIncomingError = NV_FALSE;
      unsigned rmInterruptSet = 0;
