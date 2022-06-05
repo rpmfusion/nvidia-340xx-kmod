@@ -12,14 +12,14 @@ Name:          nvidia-340xx-kmod
 Epoch:         1
 Version:       340.108
 # Taken over by kmodtool
-Release:       19%{?dist}
+Release:       20%{?dist}
 Summary:       NVIDIA display driver kernel module
 Group:         System Environment/Kernel
 License:       Redistributable, no modification permitted
 URL:           http://www.nvidia.com/
 
 Source11:      nvidia-kmodtool-excludekernel-filterfile
-Patch0:        import-files-from-390.147.patch
+Patch0:        import-files-from-390.151.patch
 Patch1:        fix-build-issues.patch
 
 BuildRequires: elfutils-libelf-devel
@@ -77,6 +77,9 @@ done
 %{?akmod_install}
 
 %changelog
+* Sun Jun 05 2022 Łukasz Wojniłowicz <lukasz.wojnilowicz@gmail.com> - 1:340.108-20
+- Patch for kernel-5.18.0
+
 * Sun Apr 03 2022 Łukasz Wojniłowicz <lukasz.wojnilowicz@gmail.com> - 1:340.108-19
 - Patch for kernel-5.17.0
 
