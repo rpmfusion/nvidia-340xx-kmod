@@ -1,6 +1,6 @@
 diff -Naur a/kernel/conftest.Kbuild b/kernel/conftest.Kbuild
 --- a/kernel/conftest.Kbuild	1970-01-01 01:00:00.000000000 +0100
-+++ b/kernel/conftest.Kbuild	2022-06-05 13:19:33.726279089 +0200
++++ b/kernel/conftest.Kbuild	2022-08-28 09:42:35.540184302 +0200
 @@ -0,0 +1,241 @@
 +NV_CONFTEST_GENERIC_COMPILE_TESTS += drm_available
 +NV_CONFTEST_GENERIC_COMPILE_TESTS += drm_atomic_available
@@ -244,8 +244,8 @@ diff -Naur a/kernel/conftest.Kbuild b/kernel/conftest.Kbuild
 +
 +$(NV_CONFTEST_HEADERS): | $(BUILD_SANITY_CHECKS)
 diff -Naur a/kernel/conftest.sh b/kernel/conftest.sh
---- a/kernel/conftest.sh	2022-06-05 13:18:33.949571878 +0200
-+++ b/kernel/conftest.sh	2022-06-05 13:19:33.730279003 +0200
+--- a/kernel/conftest.sh	2022-08-28 09:42:13.768657744 +0200
++++ b/kernel/conftest.sh	2022-08-28 09:42:35.542184258 +0200
 @@ -113,6 +113,7 @@
      FILES="$FILES drm/drm_vblank.h"
      FILES="$FILES drm/drm_file.h"
@@ -537,8 +537,8 @@ diff -Naur a/kernel/conftest.sh b/kernel/conftest.sh
              #
              # Determine whether driver feature flag DRIVER_PRIME is present.
 diff -Naur a/kernel/dkms.conf b/kernel/dkms.conf
---- a/kernel/dkms.conf	2022-06-05 13:18:33.908572764 +0200
-+++ b/kernel/dkms.conf	2022-06-05 13:19:33.730279003 +0200
+--- a/kernel/dkms.conf	2022-08-28 09:42:13.587661680 +0200
++++ b/kernel/dkms.conf	2022-08-28 09:42:35.543184237 +0200
 @@ -1,7 +1,13 @@
 +if [ -x /usr/bin/nproc ]; then
 +  num_cpu_cores=$(nproc)
@@ -555,8 +555,8 @@ diff -Naur a/kernel/dkms.conf b/kernel/dkms.conf
  CLEAN="make clean"
  AUTOINSTALL="yes"
 diff -Naur a/kernel/Makefile b/kernel/Makefile
---- a/kernel/Makefile	2022-06-05 13:18:33.904572851 +0200
-+++ b/kernel/Makefile	2022-06-05 13:19:33.725279111 +0200
+--- a/kernel/Makefile	2022-08-28 09:42:13.585661723 +0200
++++ b/kernel/Makefile	2022-08-28 09:42:35.539184324 +0200
 @@ -70,11 +70,11 @@
   MODULE_GLUE_OBJS := $(patsubst %.c,%.o,nv-frontend.c)
   $(MODULE_NAME)-objs := $(MODULE_GLUE_OBJS)
@@ -589,8 +589,8 @@ diff -Naur a/kernel/Makefile b/kernel/Makefile
  #
  # Generate multiple targets at runtime depending on the items present in
 diff -Naur a/kernel/nv-acpi.c b/kernel/nv-acpi.c
---- a/kernel/nv-acpi.c	2022-06-05 13:18:33.909572743 +0200
-+++ b/kernel/nv-acpi.c	2022-06-05 13:19:33.732278960 +0200
+--- a/kernel/nv-acpi.c	2022-08-28 09:42:13.588661658 +0200
++++ b/kernel/nv-acpi.c	2022-08-28 09:42:35.543184237 +0200
 @@ -556,9 +556,11 @@
  
  void NV_API_CALL nv_acpi_methods_init(NvU32 *handlesPresent)
@@ -646,8 +646,8 @@ diff -Naur a/kernel/nv-acpi.c b/kernel/nv-acpi.c
      if (ACPI_FAILURE(status) || !device)
          return RM_ERR_INVALID_ARGUMENT;
 diff -Naur a/kernel/nv.c b/kernel/nv.c
---- a/kernel/nv.c	2022-06-05 13:18:33.917572570 +0200
-+++ b/kernel/nv.c	2022-06-05 13:19:33.743278722 +0200
+--- a/kernel/nv.c	2022-08-28 09:42:13.607661245 +0200
++++ b/kernel/nv.c	2022-08-28 09:42:35.548184128 +0200
 @@ -752,7 +752,7 @@
      NV_SPIN_LOCK_INIT(&km_lock);
  #endif
@@ -670,8 +670,8 @@ diff -Naur a/kernel/nv.c b/kernel/nv.c
      vga_set_legacy_decoding(dev, VGA_RSRC_NONE);
  #endif
 diff -Naur a/kernel/nv-dma.c b/kernel/nv-dma.c
---- a/kernel/nv-dma.c	2022-06-05 13:18:33.909572743 +0200
-+++ b/kernel/nv-dma.c	2022-06-05 13:19:33.732278960 +0200
+--- a/kernel/nv-dma.c	2022-08-28 09:42:13.589661636 +0200
++++ b/kernel/nv-dma.c	2022-08-28 09:42:35.544184215 +0200
 @@ -136,10 +136,17 @@
          return status;
      }
@@ -705,8 +705,8 @@ diff -Naur a/kernel/nv-dma.c b/kernel/nv-dma.c
  
      *priv = dma_map->user_pages;
 diff -Naur a/kernel/nv-drm.c b/kernel/nv-drm.c
---- a/kernel/nv-drm.c	2022-06-05 13:18:33.910572721 +0200
-+++ b/kernel/nv-drm.c	2022-06-05 13:19:33.733278938 +0200
+--- a/kernel/nv-drm.c	2022-08-28 09:42:13.589661636 +0200
++++ b/kernel/nv-drm.c	2022-08-28 09:42:35.544184215 +0200
 @@ -23,6 +23,11 @@
  #include <linux/file.h>
  #endif
@@ -1176,8 +1176,8 @@ diff -Naur a/kernel/nv-drm.c b/kernel/nv-drm.c
  #endif
  
 diff -Naur a/kernel/nv-frontend.c b/kernel/nv-frontend.c
---- a/kernel/nv-frontend.c	2022-06-05 13:18:33.910572721 +0200
-+++ b/kernel/nv-frontend.c	2022-06-05 13:19:33.734278916 +0200
+--- a/kernel/nv-frontend.c	2022-08-28 09:42:13.589661636 +0200
++++ b/kernel/nv-frontend.c	2022-08-28 09:42:35.544184215 +0200
 @@ -8,6 +8,7 @@
   * _NVRM_COPYRIGHT_END_
   */
@@ -1196,8 +1196,8 @@ diff -Naur a/kernel/nv-frontend.c b/kernel/nv-frontend.c
  #else
      nvidia_exit_module();
 diff -Naur a/kernel/nv.h b/kernel/nv.h
---- a/kernel/nv.h	2022-06-05 13:18:33.918572548 +0200
-+++ b/kernel/nv.h	2022-06-05 13:19:33.745278678 +0200
+--- a/kernel/nv.h	2022-08-28 09:42:13.608661223 +0200
++++ b/kernel/nv.h	2022-08-28 09:42:35.549184106 +0200
 @@ -13,7 +13,7 @@
  #define _NV_H_
  
@@ -1207,9 +1207,21 @@ diff -Naur a/kernel/nv.h b/kernel/nv.h
  
  #if !defined(NV_MIN)
  #define NV_MIN(_a,_b) ((_a) < (_b) ? (_a) : (_b))
+diff -Naur a/kernel/nvidia-drm-conftest.h b/kernel/nvidia-drm-conftest.h
+--- a/kernel/nvidia-drm-conftest.h	2022-08-28 09:42:13.770657700 +0200
++++ b/kernel/nvidia-drm-conftest.h	2022-08-28 09:42:35.549184106 +0200
+@@ -54,7 +54,7 @@
+ 
+ #endif
+ 
+-#if defined(NV_DRM_DRIVER_HAS_GEM_PRIME_RES_OBJ) || \
++#if defined(NV_DRM_DRIVER_HAS_GEM_PRIME_RES_OBJ) && \
+     defined(NV_DRM_GEM_OBJECT_HAS_RESV)
+ #define NV_DRM_FENCE_AVAILABLE
+ #else
 diff -Naur a/kernel/nvidia-drm-gem.c b/kernel/nvidia-drm-gem.c
---- a/kernel/nvidia-drm-gem.c	2022-06-05 13:18:33.953571791 +0200
-+++ b/kernel/nvidia-drm-gem.c	2022-06-05 13:19:33.746278657 +0200
+--- a/kernel/nvidia-drm-gem.c	2022-08-28 09:42:13.770657700 +0200
++++ b/kernel/nvidia-drm-gem.c	2022-08-28 09:42:35.549184106 +0200
 @@ -26,10 +26,10 @@
  
  #include "nvidia-drm-priv.h"
@@ -1237,8 +1249,8 @@ diff -Naur a/kernel/nvidia-drm-gem.c b/kernel/nvidia-drm-gem.c
  #endif
  };
 diff -Naur a/kernel/nvidia-drm-linux.c b/kernel/nvidia-drm-linux.c
---- a/kernel/nvidia-drm-linux.c	2022-06-05 13:18:33.955571748 +0200
-+++ b/kernel/nvidia-drm-linux.c	2022-06-05 13:19:33.748278614 +0200
+--- a/kernel/nvidia-drm-linux.c	2022-08-28 09:42:13.772657657 +0200
++++ b/kernel/nvidia-drm-linux.c	2022-08-28 09:42:35.549184106 +0200
 @@ -25,7 +25,6 @@
  #include <linux/err.h>
  
@@ -1274,8 +1286,8 @@ diff -Naur a/kernel/nvidia-drm-linux.c b/kernel/nvidia-drm-linux.c
 -  MODULE_VERSION(NV_VERSION_STRING);
 -#endif
 diff -Naur a/kernel/nvidia-modules-common.mk b/kernel/nvidia-modules-common.mk
---- a/kernel/nvidia-modules-common.mk	2022-06-05 13:18:33.918572548 +0200
-+++ b/kernel/nvidia-modules-common.mk	2022-06-05 13:19:33.749278592 +0200
+--- a/kernel/nvidia-modules-common.mk	2022-08-28 09:42:13.608661223 +0200
++++ b/kernel/nvidia-modules-common.mk	2022-08-28 09:42:35.550184084 +0200
 @@ -149,10 +149,10 @@
  CONFTEST_HEADERS := $(obj)/conftest.h $(CONFTEST_COMPILE_TEST_HEADERS) \
  $(obj)/conftest/patches.h
@@ -1308,8 +1320,8 @@ diff -Naur a/kernel/nvidia-modules-common.mk b/kernel/nvidia-modules-common.mk
  	@$(RM) -rf Module*.symvers .tmp_versions modules.order
  
 diff -Naur a/kernel/nv-linux.h b/kernel/nv-linux.h
---- a/kernel/nv-linux.h	2022-06-05 13:18:33.912572678 +0200
-+++ b/kernel/nv-linux.h	2022-06-05 13:19:33.736278873 +0200
+--- a/kernel/nv-linux.h	2022-08-28 09:42:13.591661593 +0200
++++ b/kernel/nv-linux.h	2022-08-28 09:42:35.545184193 +0200
 @@ -119,12 +119,15 @@
  #include <asm/tlbflush.h>           /* flush_tlb(), flush_tlb_all()     */
  #include <linux/cpu.h>              /* CPU hotplug support              */
@@ -1636,8 +1648,8 @@ diff -Naur a/kernel/nv-linux.h b/kernel/nv-linux.h
 -
  #endif  /* _NV_LINUX_H_ */
 diff -Naur a/kernel/nv-procfs.c b/kernel/nv-procfs.c
---- a/kernel/nv-procfs.c	2022-06-05 13:18:33.913572656 +0200
-+++ b/kernel/nv-procfs.c	2022-06-05 13:19:33.737278851 +0200
+--- a/kernel/nv-procfs.c	2022-08-28 09:42:13.591661593 +0200
++++ b/kernel/nv-procfs.c	2022-08-28 09:42:35.546184171 +0200
 @@ -409,6 +409,15 @@
      return ((status < 0) ? status : (int)count);
  }
@@ -1687,8 +1699,8 @@ diff -Naur a/kernel/nv-procfs.c b/kernel/nv-procfs.c
  static int
  nv_procfs_read_text_file(
 diff -Naur a/kernel/nv-vm.c b/kernel/nv-vm.c
---- a/kernel/nv-vm.c	2022-06-05 13:18:33.914572634 +0200
-+++ b/kernel/nv-vm.c	2022-06-05 13:19:33.739278808 +0200
+--- a/kernel/nv-vm.c	2022-08-28 09:42:13.592661571 +0200
++++ b/kernel/nv-vm.c	2022-08-28 09:42:35.546184171 +0200
 @@ -12,6 +12,9 @@
  #include "os-interface.h"
  #include "nv.h"
@@ -1721,8 +1733,8 @@ diff -Naur a/kernel/nv-vm.c b/kernel/nv-vm.c
  
  #define NV_MAP_SG_MAX_RETRIES 16
 diff -Naur a/kernel/os-interface.c b/kernel/os-interface.c
---- a/kernel/os-interface.c	2022-06-05 13:18:33.919572526 +0200
-+++ b/kernel/os-interface.c	2022-06-05 13:19:33.751278549 +0200
+--- a/kernel/os-interface.c	2022-08-28 09:42:13.609661201 +0200
++++ b/kernel/os-interface.c	2022-08-28 09:42:35.550184084 +0200
 @@ -439,7 +439,7 @@
      NvU32 *useconds
  )
@@ -1763,8 +1775,8 @@ diff -Naur a/kernel/os-interface.c b/kernel/os-interface.c
          {
              schedule_timeout(jiffies);
 diff -Naur a/kernel/os-interface.h b/kernel/os-interface.h
---- a/kernel/os-interface.h	2022-06-05 13:18:33.920572505 +0200
-+++ b/kernel/os-interface.h	2022-06-05 13:19:33.752278527 +0200
+--- a/kernel/os-interface.h	2022-08-28 09:42:13.609661201 +0200
++++ b/kernel/os-interface.h	2022-08-28 09:42:35.551184063 +0200
 @@ -24,7 +24,7 @@
  *                                                                           *
  \***************************************************************************/
@@ -1775,8 +1787,8 @@ diff -Naur a/kernel/os-interface.h b/kernel/os-interface.h
  /*
   * Define away Microsoft compiler extensions when possible
 diff -Naur a/kernel/os-mlock.c b/kernel/os-mlock.c
---- a/kernel/os-mlock.c	2022-06-05 13:18:33.921572483 +0200
-+++ b/kernel/os-mlock.c	2022-06-05 13:19:33.753278505 +0200
+--- a/kernel/os-mlock.c	2022-08-28 09:42:13.610661179 +0200
++++ b/kernel/os-mlock.c	2022-08-28 09:42:35.551184063 +0200
 @@ -14,6 +14,8 @@
  #include "os-interface.h"
  #include "nv-linux.h"
@@ -1800,8 +1812,8 @@ diff -Naur a/kernel/os-mlock.c b/kernel/os-mlock.c
  
      if (ret < 0)
 diff -Naur a/kernel/uvm/conftest.sh b/kernel/uvm/conftest.sh
---- a/kernel/uvm/conftest.sh	2022-06-05 13:18:33.922572461 +0200
-+++ b/kernel/uvm/conftest.sh	2022-06-05 13:19:33.756278441 +0200
+--- a/kernel/uvm/conftest.sh	2022-08-28 09:42:13.624660875 +0200
++++ b/kernel/uvm/conftest.sh	2022-08-28 09:42:35.552184041 +0200
 @@ -176,6 +176,7 @@
      FILES="$FILES linux/ktime.h"
      FILES="$FILES linux/file.h"
@@ -1821,8 +1833,8 @@ diff -Naur a/kernel/uvm/conftest.sh b/kernel/uvm/conftest.sh
              #include <asm/set_memory.h>
              #else
 diff -Naur a/kernel/uvm/Makefile b/kernel/uvm/Makefile
---- a/kernel/uvm/Makefile	2022-06-05 13:18:33.921572483 +0200
-+++ b/kernel/uvm/Makefile	2022-06-05 13:19:33.754278484 +0200
+--- a/kernel/uvm/Makefile	2022-08-28 09:42:13.610661179 +0200
++++ b/kernel/uvm/Makefile	2022-08-28 09:42:35.551184063 +0200
 @@ -207,6 +207,7 @@
  
  RM_MODULE_SYMVERS:= $(RM_OUT_DIR)/Module.symvers
@@ -1832,8 +1844,8 @@ diff -Naur a/kernel/uvm/Makefile b/kernel/uvm/Makefile
  module $(MODULE_NAME).ko: $(UVM_MODULE_SYMVERS) debug_diagnostics_printing
  
 diff -Naur a/kernel/uvm/nvidia_uvm_linux.h b/kernel/uvm/nvidia_uvm_linux.h
---- a/kernel/uvm/nvidia_uvm_linux.h	2022-06-05 13:18:33.922572461 +0200
-+++ b/kernel/uvm/nvidia_uvm_linux.h	2022-06-05 13:19:33.757278419 +0200
+--- a/kernel/uvm/nvidia_uvm_linux.h	2022-08-28 09:42:13.625660853 +0200
++++ b/kernel/uvm/nvidia_uvm_linux.h	2022-08-28 09:42:35.553184019 +0200
 @@ -141,7 +141,9 @@
  #if !defined(NV_VMWARE)
  #include <asm/tlbflush.h>           /* flush_tlb(), flush_tlb_all()     */
@@ -1855,8 +1867,8 @@ diff -Naur a/kernel/uvm/nvidia_uvm_linux.h b/kernel/uvm/nvidia_uvm_linux.h
  #include <linux/ioctl32.h>          /* register_ioctl32_conversion()    */
  #endif
 diff -Naur a/kernel/uvm/nvidia_uvm_lite_api.c b/kernel/uvm/nvidia_uvm_lite_api.c
---- a/kernel/uvm/nvidia_uvm_lite_api.c	2022-06-05 13:18:33.924572418 +0200
-+++ b/kernel/uvm/nvidia_uvm_lite_api.c	2022-06-05 13:19:33.760278354 +0200
+--- a/kernel/uvm/nvidia_uvm_lite_api.c	2022-08-28 09:42:13.628660788 +0200
++++ b/kernel/uvm/nvidia_uvm_lite_api.c	2022-08-28 09:42:35.554183997 +0200
 @@ -30,6 +30,12 @@
  #include "uvm_gpu_ops_tests.h"
  #endif
@@ -2009,8 +2021,8 @@ diff -Naur a/kernel/uvm/nvidia_uvm_lite_api.c b/kernel/uvm/nvidia_uvm_lite_api.c
      // 
      // We can not reverse uvm_map_page, so inserted pages will stay
 diff -Naur a/kernel/uvm/nvidia_uvm_lite.c b/kernel/uvm/nvidia_uvm_lite.c
---- a/kernel/uvm/nvidia_uvm_lite.c	2022-06-05 13:18:33.924572418 +0200
-+++ b/kernel/uvm/nvidia_uvm_lite.c	2022-06-05 13:19:33.759278376 +0200
+--- a/kernel/uvm/nvidia_uvm_lite.c	2022-08-28 09:42:13.627660810 +0200
++++ b/kernel/uvm/nvidia_uvm_lite.c	2022-08-28 09:42:35.554183997 +0200
 @@ -131,8 +131,8 @@
  RM_STATUS _preexisting_error_on_channel(UvmGpuMigrationTracking *pMigTracker,
                                           UvmCommitRecord *pRecord);
