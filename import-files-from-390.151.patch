@@ -1050,7 +1050,7 @@ diff -Naur a/kernel/conftest.sh b/kernel/conftest.sh
  
 -            compile_check_conftest "$CODE" "NV_VM_FAULT_HAS_ADDRESS" "" "types"
 +            compile_check_conftest "$CODE" "NV_FAULT_FLAG_PRESENT" "" "types"
-+        ;;
+         ;;
 +
 +        atomic_long_type)
 +            # Determine if atomic_long_t and associated functions are defined
@@ -1079,7 +1079,7 @@ diff -Naur a/kernel/conftest.sh b/kernel/conftest.sh
 +            }"
 +
 +            compile_check_conftest "$CODE" "NV_ATOMIC64_PRESENT" "" "types"
-         ;;
++        ;;
 +
          task_struct)
              #
@@ -2167,7 +2167,7 @@ diff -Naur a/kernel/conftest.sh b/kernel/conftest.sh
 +            void conftest_usleep_range(void) {
 +                usleep_range();
 +            }"
-+
+ 
 +            compile_check_conftest "$CODE" "NV_USLEEP_RANGE_PRESENT" "" "functions"
 +        ;;
 +
@@ -2289,7 +2289,7 @@ diff -Naur a/kernel/conftest.sh b/kernel/conftest.sh
 +            int conftest_drm_atomic_modeset_nonblocking_commit_available(void) {
 +                return offsetof(struct drm_mode_config, helper_private);
 +            }"
- 
++
 +            compile_check_conftest "$CODE" "NV_DRM_ATOMIC_MODESET_NONBLOCKING_COMMIT_AVAILABLE" "" "generic"
 +        ;;
 +
@@ -2471,7 +2471,7 @@ diff -Naur a/kernel/conftest.sh b/kernel/conftest.sh
 +            CODE="
 +            #if defined(NV_DRM_DRM_ATOMIC_HELPER_H_PRESENT)
 +            #include <drm/drm_atomic_helper.h>
-             #endif
++            #endif
 +            void conftest_drm_atomic_helper_crtc_destroy_state_has_crtc_arg(void) {
 +                __drm_atomic_helper_crtc_destroy_state(NULL, NULL);
 +            }"
@@ -2510,7 +2510,9 @@ diff -Naur a/kernel/conftest.sh b/kernel/conftest.sh
 +            #include <linux/backlight.h>
 +            #if !defined(CONFIG_BACKLIGHT_CLASS_DEVICE)
 +            #error Backlight class device not enabled
-+            #endif
+             #endif
+-            void conftest_drm_legacy_pci_init(void) {
+-                drm_legacy_pci_init();
 +            void conftest_backlight_device_register(void) {
 +                backlight_device_register(NULL, NULL, NULL, NULL, NULL);
 +            }" > conftest$$.c
@@ -2822,9 +2824,7 @@ diff -Naur a/kernel/conftest.sh b/kernel/conftest.sh
 +            int conftest_drm_connector_list_iter(void) {
 +                struct drm_connector_list_iter conn_iter;
 +            }"
- 
--            void conftest_drm_driver_legacy_feature_bit_present(struct drm_driver *drv) {
--                drv->driver_features = DRIVER_LEGACY;
++
 +            compile_check_conftest "$CODE" "NV_DRM_CONNECTOR_LIST_ITER_PRESENT" "" "types"
 +
 +            #
@@ -2863,8 +2863,9 @@ diff -Naur a/kernel/conftest.sh b/kernel/conftest.sh
 +                    struct drm_atomic_state *state,
 +                    bool stall) {
 +                (void)drm_atomic_helper_swap_state(state, stall);
-+            }"
-+
+             }"
+ 
+-            compile_check_conftest "$CODE" "NV_DRM_DRIVER_LEGACY_FEATURE_BIT_PRESENT" "" "types"
 +            compile_check_conftest "$CODE" "NV_DRM_ATOMIC_HELPER_SWAP_STATE_HAS_STALL_ARG" | append_conftest "types"
 +
 +            #
@@ -2885,8 +2886,8 @@ diff -Naur a/kernel/conftest.sh b/kernel/conftest.sh
 +            }"
 +
 +            compile_check_conftest "$CODE" "NV_DRM_ATOMIC_HELPER_SWAP_STATE_RETURN_INT" | append_conftest "types"
-+        ;;
-+
+         ;;
+ 
 +        dma_direct_map_resource)
 +            #
 +            # Determine whether dma_is_direct() exists.
