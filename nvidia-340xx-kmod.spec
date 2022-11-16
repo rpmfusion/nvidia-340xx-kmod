@@ -5,22 +5,23 @@
 # a new akmod package will only get build when a new one is actually needed
 %if 0%{?fedora}
 %global buildforkernels akmod
-%global debug_package %{nil}
 %endif
+%global debug_package %{nil}
 
 Name:          nvidia-340xx-kmod
 Epoch:         1
 Version:       340.108
 # Taken over by kmodtool
-Release:       17%{?dist}
+Release:       24%{?dist}
 Summary:       NVIDIA display driver kernel module
 Group:         System Environment/Kernel
 License:       Redistributable, no modification permitted
 URL:           http://www.nvidia.com/
 
 Source11:      nvidia-kmodtool-excludekernel-filterfile
-Patch0:        import-files-from-390.144.patch
+Patch0:        import-files-from-390.151.patch
 Patch1:        fix-build-issues.patch
+Patch2:        0011-kernel-6.0.patch
 
 BuildRequires: elfutils-libelf-devel
 BuildRequires: gcc
@@ -49,6 +50,7 @@ tar --use-compress-program xz -xf %{_datadir}/%{name}-%{version}/%{name}-%{versi
 # patch loop
 %patch0 -p1
 %patch1 -p1
+%patch2 -p1
 
 for kernel_version  in %{?kernel_versions} ; do
     cp -a kernel _kmod_build_${kernel_version%%___*}
@@ -77,7 +79,29 @@ done
 %{?akmod_install}
 
 %changelog
-* Fri Nov 19 2021 Łukasz Wojniłowicz <lukasz.wojnilowicz@gmail.com> - 1:340.108-17
+* Sun Oct 16 2022 Łukasz Wojniłowicz <lukasz.wojnilowicz@gmail.com> - 1:340.108-24
+- Change argument from -p2 to -p1 in the spec file
+
+* Sun Oct 16 2022 Łukasz Wojniłowicz <lukasz.wojnilowicz@gmail.com> - 1:340.108-23
+- Fix build on kernel-6.0.2
+
+* Sun Aug 28 2022 Łukasz Wojniłowicz <lukasz.wojnilowicz@gmail.com> - 1:340.108-22
+- Fix build on kernel-5.19.0
+
+* Mon Aug 08 2022 RPM Fusion Release Engineering <sergiomb@rpmfusion.org> - 1:340.108-21
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_37_Mass_Rebuild and ffmpeg
+  5.1
+
+* Sun Jun 05 2022 Łukasz Wojniłowicz <lukasz.wojnilowicz@gmail.com> - 1:340.108-20
+- Patch for kernel-5.18.0
+
+* Sun Apr 03 2022 Łukasz Wojniłowicz <lukasz.wojnilowicz@gmail.com> - 1:340.108-19
+- Patch for kernel-5.17.0
+
+* Thu Feb 10 2022 RPM Fusion Release Engineering <sergiomb@rpmfusion.org> - 1:340.108-18
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_36_Mass_Rebuild
+
+* Fri Jan 21 2022 Łukasz Wojniłowicz <lukasz.wojnilowicz@gmail.com> - 1:340.108-17
 - Reduce the patchset to two patches
 
 * Fri Nov 19 2021 Nicolas Chauvet <kwizart@gmail.com> - 1:340.108-16
