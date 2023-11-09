@@ -12,7 +12,7 @@ Name:          nvidia-340xx-kmod
 Epoch:         1
 Version:       340.108
 # Taken over by kmodtool
-Release:       29%{?dist}
+Release:       30%{?dist}
 Summary:       NVIDIA display driver kernel module
 Group:         System Environment/Kernel
 License:       Redistributable, no modification permitted
@@ -23,6 +23,7 @@ Patch0:        import-files-from-390.157.patch
 Patch1:        fix-build-issues.patch
 Patch2:        kernel-6.3.1.patch
 Patch3:        kernel-6.5.2.patch
+Patch4:        kernel-6.6.1.patch
 
 BuildRequires: elfutils-libelf-devel
 BuildRequires: gcc
@@ -53,6 +54,7 @@ tar --use-compress-program xz -xf %{_datadir}/%{name}-%{version}/%{name}-%{versi
 %patch 1 -p1
 %patch 2 -p1
 %patch 3 -p1
+%patch 4 -p1
 
 for kernel_version  in %{?kernel_versions} ; do
     cp -a kernel _kmod_build_${kernel_version%%___*}
@@ -81,6 +83,9 @@ done
 %{?akmod_install}
 
 %changelog
+* Thu Nov 09 2023 Łukasz Wojniłowicz <lukasz.wojnilowicz@gmail.com> - 1:340.108-30
+- Fix build on kernel-6.6.1
+
 * Mon Sep 11 2023 Łukasz Wojniłowicz <lukasz.wojnilowicz@gmail.com> - 1:340.108-29
 - Fix build on kernel-6.5.2
 
