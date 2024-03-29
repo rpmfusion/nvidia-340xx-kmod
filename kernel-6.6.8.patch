@@ -1,0 +1,11 @@
+diff -Naur a/kernel/conftest.sh b/kernel/conftest.sh
+--- a/kernel/conftest.sh	2023-11-09 18:36:25.485758000 +0100
++++ b/kernel/conftest.sh	2024-03-29 19:41:07.558997000 +0100
+@@ -1846,6 +1846,7 @@
+         ;;
+ 
+         drm_available)
++												return
+             #
+             # Determine if the DRM subsystem is usable
+             #
