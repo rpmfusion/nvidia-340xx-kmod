@@ -1,0 +1,15 @@
+diff -Naur a/kernel/conftest.sh b/kernel/conftest.sh
+--- a/kernel/conftest.sh	2024-04-08 20:36:36.730198000 +0200
++++ b/kernel/conftest.sh	2024-04-08 20:35:11.117112000 +0200
+@@ -1862,7 +1862,11 @@
+             #error DRM not enabled
+             #endif
+ 
++            #include <linux/bug.h>
++            #include <linux/version.h>
++
+             void conftest_drm_available(void) {
++                BUILD_BUG_ON(LINUX_VERSION_CODE >= KERNEL_VERSION(6, 8, 0));
+                 struct drm_driver drv;
+ 
+                 /* 2013-10-02 1bb72532ac260a2d3982b40bdd4c936d779d0d16 */
