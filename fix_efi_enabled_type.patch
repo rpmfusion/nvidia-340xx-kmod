@@ -1,0 +1,12 @@
+diff -Naur a/kernel/nv-linux.h b/kernel/nv-linux.h
+--- a/kernel/nv-linux.h	2023-09-11 17:08:50.919035000 +0200
++++ b/kernel/nv-linux.h	2024-04-11 20:08:16.180864120 +0200
+@@ -195,7 +195,7 @@
+ #endif
+ #elif !defined(NV_VMWARE) && \
+   (defined(NV_EFI_ENABLED_PRESENT) || defined(efi_enabled))
+-#define NV_EFI_ENABLED() efi_enabled
++#define NV_EFI_ENABLED() ((int)efi_enabled)
+ #else
+ #define NV_EFI_ENABLED() 0
+ #endif

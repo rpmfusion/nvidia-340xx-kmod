@@ -12,7 +12,7 @@ Name:          nvidia-340xx-kmod
 Epoch:         1
 Version:       340.108
 # Taken over by kmodtool
-Release:       31%{?dist}
+Release:       32%{?dist}
 Summary:       NVIDIA display driver kernel module
 Group:         System Environment/Kernel
 License:       Redistributable, no modification permitted
@@ -26,6 +26,7 @@ Patch3:        kernel-6.5.2.patch
 Patch4:        kernel-6.6.1.patch
 Patch5:        kernel-6.8.2.patch
 Patch6:        gcc-14.patch
+Patch7:        fix_efi_enabled_type.patch
 
 BuildRequires: elfutils-libelf-devel
 BuildRequires: gcc
@@ -59,6 +60,7 @@ tar --use-compress-program xz -xf %{_datadir}/%{name}-%{version}/%{name}-%{versi
 %patch 4 -p1
 %patch 5 -p1
 %patch 6 -p1
+%patch 7 -p1
 
 for kernel_version  in %{?kernel_versions} ; do
     cp -a kernel _kmod_build_${kernel_version%%___*}
@@ -87,6 +89,9 @@ done
 %{?akmod_install}
 
 %changelog
+* Thu Apr 11 2024 Łukasz Wojniłowicz <lukasz.wojnilowicz@gmail.com> - 1:340.108-32
+- Fix efi_enabled type
+
 * Tue Apr 09 2024 Łukasz Wojniłowicz <lukasz.wojnilowicz@gmail.com> - 1:340.108-31
 - Fix build on gcc-14
 
